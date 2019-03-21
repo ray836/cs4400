@@ -85,6 +85,9 @@ class SimpleSwitch13(app_manager.RyuApp):
         print("src")
         print(src)
 
+        print("eth")
+        print(eth.ethertype)
+
         print("^^^^^^^^")
 
 
