@@ -89,7 +89,7 @@ class SimpleSwitch13(app_manager.RyuApp):
         print(eth.ethertype)
 
         for p in pkt.protocols:
-            print(p)
+            print(p.protocol_name, "<__>", p)
 
         print("^^^^^^^^")
 
