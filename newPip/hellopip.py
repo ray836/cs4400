@@ -51,7 +51,7 @@ class SimpleSwitch13(app_manager.RyuApp):
 
     def add_flow(self, datapath, priority, match, actions, buffer_id=None):
         print("in add flow +++")
-	ofproto = datapath.ofproto
+        ofproto = datapath.ofproto
         parser = datapath.ofproto_parser
 
         inst = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS,
@@ -67,7 +67,19 @@ class SimpleSwitch13(app_manager.RyuApp):
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def _packet_in_handler(self, ev):
-	print("in packet in handler")
+        print(">>>packet being received (_packet_in_handler)")
+
+        msg = ev.msg  # Object representing a packet_in data structure.
+        datapath = msg.datapath  # Switch Datapath ID
+        ofproto = datapath.ofproto  # OpenFlow Protocol version the entities negotiated. In our case OF1.3
+
+        print("msg: " + msg)
+        print("datapath: " + datapath)
+        print("ofProto" + ofproto)
+
+        print("^^^^^^^^")
+
+
         # If you hit this you might want to increase
         # the "miss_send_length" of your switch
         if ev.msg.msg_len < ev.msg.total_len:
