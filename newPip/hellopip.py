@@ -86,11 +86,14 @@ class SimpleSwitch13(app_manager.RyuApp):
             arp_dst = arp_info.dst
             arp_src = arp_info.src
 
+            print("arp:>>>")
+            print(arp_info)
+
             print("arp dst:")
             print(arp_dst)
 
-        print("arp src:")
-        print(arp_src)
+            print("arp src:")
+            print(arp_src)
 
         print("dst:")
         print(dst)
