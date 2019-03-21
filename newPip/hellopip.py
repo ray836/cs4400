@@ -83,8 +83,8 @@ class SimpleSwitch13(app_manager.RyuApp):
 
         if arp_info:
 
-            arp_dst = arp_info.dst
-            arp_src = arp_info.src
+            arp_dst = arp_info.dst_mac
+            arp_src = arp_info.src_mac
 
             print("arp:>>>")
             print(arp_info)
