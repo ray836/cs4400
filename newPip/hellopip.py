@@ -78,33 +78,31 @@ class SimpleSwitch13(app_manager.RyuApp):
         eth = pkt.get_protocol(ethernet.ethernet)
         arp_info = pkt.get_protocol(arp.arp)
 
-        dst = eth.dst
-        src = eth.src
+
+
+        print("---------------------------------------------------")
+        print("Packet () Received on Port(): ... ...")
+        for p in pkt.protocols:
+            print(p.protocol_name)
+
 
         if arp_info:
-
-            arp_dst = arp_info.dst_mac
-            arp_src = arp_info.src_mac
-
-            print("arp:>>>")
+            print("ARP")
             print(arp_info)
 
-            print("arp dst:")
-            print(arp_dst)
+            print(" From IP: {}".format(arp_info.src_ip))
+            print(" To   IP: {}".format(arp_info.dest_ip))
+            print(" From Mac: {}".format(arp_info.src_mac))
+            print(" To   Mac: {}".format(arp_info.src_mac))
 
-            print("arp src:")
-            print(arp_src)
+        if eth:
 
-        print("dst:")
-        print(dst)
-        print("src")
-        print(src)
+            print("ETH")
 
-        print("eth")
-        print(eth.ethertype)
+            print(" From Mac: {}".format(eth.src))
+            print(" To   Mac: {}".format(eth.dst))
 
-        for p in pkt.protocols:
-            print(p.protocol_name, "<__>", p)
+
 
         print("^^^^^^^^")
 
