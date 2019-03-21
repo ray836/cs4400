@@ -29,6 +29,7 @@ class SimpleSwitch13(app_manager.RyuApp):
     def __init__(self, *args, **kwargs):
         super(SimpleSwitch13, self).__init__(*args, **kwargs)
         self.mac_to_port = {}
+        print("working")
 
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
     def switch_features_handler(self, ev):
@@ -73,9 +74,16 @@ class SimpleSwitch13(app_manager.RyuApp):
         datapath = msg.datapath  # Switch Datapath ID
         ofproto = datapath.ofproto  # OpenFlow Protocol version the entities negotiated. In our case OF1.3
 
-        print("msg: " + msg)
-        print("datapath: " + datapath)
-        print("ofProto" + ofproto)
+        pkt = packet.Packet(msg.data)
+        eth = pkt.get_protocol(ethernet.ethernet)
+
+        dst = eth.dst
+        src = eth.src
+
+        print("dst:")
+        print(dst)
+        print("src")
+        print(src)
 
         print("^^^^^^^^")
 
