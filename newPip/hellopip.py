@@ -18,7 +18,7 @@ from ryu.controller import ofp_event
 from ryu.controller.handler import CONFIG_DISPATCHER, MAIN_DISPATCHER
 from ryu.controller.handler import set_ev_cls
 from ryu.ofproto import ofproto_v1_3
-from ryu.lib.packet import packet
+from ryu.lib.packet import ethernet, arp, packet
 from ryu.lib.packet import ethernet
 from ryu.lib.packet import ether_types
 
@@ -76,9 +76,19 @@ class SimpleSwitch13(app_manager.RyuApp):
 
         pkt = packet.Packet(msg.data)
         eth = pkt.get_protocol(ethernet.ethernet)
+        arp_info = pkt.get_protocol(arp.arp)
 
         dst = eth.dst
         src = eth.src
+
+        arp_dst = arp_info.dst
+        arp_src = arp_info.src
+
+        print("arp dst:")
+        print(arp_dst)
+
+        print("arp src:")
+        print(arp_src)
 
         print("dst:")
         print(dst)
