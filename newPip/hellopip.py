@@ -81,11 +81,13 @@ class SimpleSwitch13(app_manager.RyuApp):
         dst = eth.dst
         src = eth.src
 
-        arp_dst = arp_info.dst
-        arp_src = arp_info.src
+        if arp_info:
 
-        print("arp dst:")
-        print(arp_dst)
+            arp_dst = arp_info.dst
+            arp_src = arp_info.src
+
+            print("arp dst:")
+            print(arp_dst)
 
         print("arp src:")
         print(arp_src)
