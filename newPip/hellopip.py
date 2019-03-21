@@ -91,9 +91,9 @@ class SimpleSwitch13(app_manager.RyuApp):
             print(arp_info)
 
             print(" From IP: {}".format(arp_info.src_ip))
-            print(" To   IP: {}".format(arp_info.dest_ip))
+            print(" To   IP: {}".format(arp_info.dst_ip))
             print(" From Mac: {}".format(arp_info.src_mac))
-            print(" To   Mac: {}".format(arp_info.src_mac))
+            print(" To   Mac: {}".format(arp_info.dst_mac))
 
         if eth:
 
