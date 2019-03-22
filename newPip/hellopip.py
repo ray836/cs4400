@@ -88,54 +88,47 @@ class SimpleSwitch13(app_manager.RyuApp):
         for p in pkt.protocols:
             print(p.protocol_name)
 
-        print("datapath:")
-        print(datapath)
-        print("proto:")
-        print(ofproto)
-        print("id")
-        print(datapath.address)
 
         if arp_info:
-            print("ARP")
+            print(" ARP")
             print(arp_info)
 
-            print(" From IP: {}".format(arp_info.src_ip))
-            print(" To   IP: {}".format(arp_info.dst_ip))
-            print(" From Mac: {}".format(arp_info.src_mac))
-            print(" To   Mac: {}".format(arp_info.dst_mac))
+            print("     From IP: {}".format(arp_info.src_ip))
+            print("     To   IP: {}".format(arp_info.dst_ip))
+            print("     From Mac: {}".format(arp_info.src_mac))
+            print("     To   Mac: {}".format(arp_info.dst_mac))
 
         if ipv4_info:
-            print("IPV4")
-            print("Check Sum: {}".format(ipv4_info.csum))
-            print("From   IP: {}".format(ipv4_info.src))
-            print("To     IP: {}".format(ipv4_info.dst))
-            print("Length   : {}".format(ipv4_info.total_length))
+            print(" IPV4")
+            print("     Check Sum: {}".format(ipv4_info.csum))
+            print("     From   IP: {}".format(ipv4_info.src))
+            print("     To     IP: {}".format(ipv4_info.dst))
+            print("     Length   : {}".format(ipv4_info.total_length))
         else:
-            print("Not IPV4")
+            print(" Not IPV4")
 
         if ipv6_info:
-            print("IPV4")
-            print("Check Sum: {}".format(ipv6_info.csum))
-            print("From   IP: {}".format(ipv6_info.src))
-            print("To     IP: {}".format(ipv6_info.dst))
-            print("Length   : {}".format(ipv6_info.total_length))
+            print(" IPV6")
+            print("  Check Sum: {}".format(ipv6_info.csum))
+            print("  From   IP: {}".format(ipv6_info.src))
+            print("  To     IP: {}".format(ipv6_info.dst))
+            print("  Length   : {}".format(ipv6_info.total_length))
         else:
-            print("Not IPV6")
+            print(" Not IPV6")
 
         if icmp_info:
-            print("PING")
-            print()
+            print(" PING")
 
         if eth:
 
-            print("ETH")
+            print(" ETH")
 
-            print(" From Mac: {}".format(eth.src))
-            print(" To   Mac: {}".format(eth.dst))
+            print("  From Mac: {}".format(eth.src))
+            print("  To   Mac: {}".format(eth.dst))
 
-        print("Controller Switch (OF)")
+        print(" Controller Switch (OF)")
 
-        print("     Address, Port:", datapath.address)
+        print("  Address, Port:", datapath.address)
 
         print("^^^^^^^^")
 
