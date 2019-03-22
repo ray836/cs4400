@@ -87,7 +87,7 @@ class SimpleSwitch13(app_manager.RyuApp):
 
 
         print("---------------------------------------------------")
-        print("Packet ({}) Received on Port({}): ... ...".format(self.package_count, in_port))
+        print("Packet ({}) Received on Port({}): ... ...".format(self.package_count, in_port), end='', flush=True)
         for p in pkt.protocols:
             print(p.protocol_name)
 
