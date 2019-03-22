@@ -88,6 +88,8 @@ class SimpleSwitch13(app_manager.RyuApp):
         print(datapath)
         print("proto:")
         print(ofproto)
+        print("id")
+        print(datapath.id)
 
         if arp_info:
             print("ARP")
