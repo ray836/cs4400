@@ -18,7 +18,7 @@ from ryu.controller import ofp_event
 from ryu.controller.handler import CONFIG_DISPATCHER, MAIN_DISPATCHER
 from ryu.controller.handler import set_ev_cls
 from ryu.ofproto import ofproto_v1_3
-from ryu.lib.packet import ethernet, arp, packet, ipv4, ipv6
+from ryu.lib.packet import ethernet, arp, packet, ipv4, ipv6, icmp
 from ryu.lib.packet import ethernet
 from ryu.lib.packet import ether_types
 
@@ -79,6 +79,7 @@ class SimpleSwitch13(app_manager.RyuApp):
         arp_info = pkt.get_protocol(arp.arp)
         ipv4_info = pkt.get_protocol(ipv4.ipv4)
         ipv6_info = pkt.get_protocol(ipv6.ipv6)
+        icmp_info = pkt.get_protocol(icmp.icmp)
 
 
 
@@ -120,6 +121,10 @@ class SimpleSwitch13(app_manager.RyuApp):
             print("Length   : {}".format(ipv6_info.total_length))
         else:
             print("Not IPV6")
+
+        if icmp_info:
+            print("PING")
+            print()
 
         if eth:
 
