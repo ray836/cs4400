@@ -84,12 +84,13 @@ class SimpleSwitch13(app_manager.RyuApp):
         icmp_info = pkt.get_protocol(icmp.icmp)
         self.package_count += 1
 
-
+        protocol_list = []
+        for p in pkt.protocols:
+            protocol_list.append(p.protocol_name)
 
         print("---------------------------------------------------")
-        print("Packet ({}) Received on Port({}): ... ...".format(self.package_count, in_port), end='', flush=True)
-        for p in pkt.protocols:
-            print(p.protocol_name)
+        print("Packet ({}) Received on Port({}): {}".format(self.package_count, in_port, protocol_list))
+
 
 
         if arp_info:
