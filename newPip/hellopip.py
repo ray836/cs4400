@@ -72,6 +72,7 @@ class SimpleSwitch13(app_manager.RyuApp):
         msg = ev.msg  # Object representing a packet_in data structure.
         datapath = msg.datapath  # Switch Datapath ID
         ofproto = datapath.ofproto  # OpenFlow Protocol version the entities negotiated. In our case OF1.3
+        in_port = msg.match['in_port']
 
         pkt = packet.Packet(msg.data)
         eth = pkt.get_protocol(ethernet.ethernet)
@@ -82,7 +83,7 @@ class SimpleSwitch13(app_manager.RyuApp):
 
 
         print("---------------------------------------------------")
-        print("Packet () Received on Port(): ... ...")
+        print("Packet () Received on Port({}): ... ...".format(in_port))
         for p in pkt.protocols:
             print(p.protocol_name)
 
