@@ -25,10 +25,12 @@ from ryu.lib.packet import ether_types
 
 class SimpleSwitch13(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
+    package_count = 0
 
     def __init__(self, *args, **kwargs):
         super(SimpleSwitch13, self).__init__(*args, **kwargs)
         self.mac_to_port = {}
+        self.package_count = 0
 
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
     def switch_features_handler(self, ev):
@@ -80,11 +82,12 @@ class SimpleSwitch13(app_manager.RyuApp):
         ipv4_info = pkt.get_protocol(ipv4.ipv4)
         ipv6_info = pkt.get_protocol(ipv6.ipv6)
         icmp_info = pkt.get_protocol(icmp.icmp)
+        self.package_count += 1
 
 
 
         print("---------------------------------------------------")
-        print("Packet () Received on Port({}): ... ...".format(in_port))
+        print("Packet ({}) Received on Port({}): ... ...".format(self.package_count, in_port))
         for p in pkt.protocols:
             print(p.protocol_name)
 
