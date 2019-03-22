@@ -88,11 +88,11 @@ class SimpleSwitch13(app_manager.RyuApp):
 
 
         print("---------------------------------------------------")
-        print("Packet ({}) Received on Port({}): ... ...".format(self.packet_count, in_port), end=" ")
+        print("Packet () Received on Port({}): ... ...".format(in_port))
         for p in pkt.protocols:
-            print(p.protocol_name, end=" ")
+            print(p.protocol_name, end =" ")
 
-        print()
+
         if arp_info:
             print(" ARP")
             print("     From IP: {}".format(arp_info.src_ip))
