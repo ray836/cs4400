@@ -25,12 +25,10 @@ from ryu.lib.packet import ether_types
 
 class SimpleSwitch13(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
-    packet_count = 0
 
     def __init__(self, *args, **kwargs):
         super(SimpleSwitch13, self).__init__(*args, **kwargs)
         self.mac_to_port = {}
-        packet_count = 0
 
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
     def switch_features_handler(self, ev):
@@ -70,8 +68,6 @@ class SimpleSwitch13(app_manager.RyuApp):
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def _packet_in_handler(self, ev):
         print(">>>packet being received (_packet_in_handler)")
-
-        self.packet_count = 1
 
         msg = ev.msg  # Object representing a packet_in data structure.
         datapath = msg.datapath  # Switch Datapath ID
