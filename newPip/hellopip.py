@@ -18,7 +18,7 @@ from ryu.controller import ofp_event
 from ryu.controller.handler import CONFIG_DISPATCHER, MAIN_DISPATCHER
 from ryu.controller.handler import set_ev_cls
 from ryu.ofproto import ofproto_v1_3
-from ryu.lib.packet import ethernet, arp, packet
+from ryu.lib.packet import ethernet, arp, packet, ipv4, ipv6
 from ryu.lib.packet import ethernet
 from ryu.lib.packet import ether_types
 
@@ -76,6 +76,8 @@ class SimpleSwitch13(app_manager.RyuApp):
         pkt = packet.Packet(msg.data)
         eth = pkt.get_protocol(ethernet.ethernet)
         arp_info = pkt.get_protocol(arp.arp)
+        ipv4_info = pkt.get_protocol(ipv4.ipv4)
+        ipv6_info = pkt.get_protocol(ipv6.ipv6)
 
 
 
@@ -99,6 +101,24 @@ class SimpleSwitch13(app_manager.RyuApp):
             print(" To   IP: {}".format(arp_info.dst_ip))
             print(" From Mac: {}".format(arp_info.src_mac))
             print(" To   Mac: {}".format(arp_info.dst_mac))
+
+        if ipv4_info:
+            print("IPV4")
+            print("Check Sum: {}", ipv4_info.csum)
+            print("From   IP: {}", ipv4_info.src)
+            print("To     IP: {}", ipv4_info.dst)
+            print("Length   : {}", ipv4_info.total_length)
+        else:
+            print("Not IPV4")
+
+        if ipv6_info:
+            print("IPV4")
+            print("Check Sum: {}", ipv6_info.csum)
+            print("From   IP: {}", ipv6_info.src)
+            print("To     IP: {}", ipv6_info.dst)
+            print("Length   : {}", ipv6_info.total_length)
+        else:
+            print("Not IPV6")
 
         if eth:
 
