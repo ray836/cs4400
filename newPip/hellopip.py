@@ -84,6 +84,8 @@ class SimpleSwitch13(app_manager.RyuApp):
         for p in pkt.protocols:
             print(p.protocol_name)
 
+        print("datapath:")
+        print(msg.datapath)
 
         if arp_info:
             print("ARP")
