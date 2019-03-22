@@ -1,17 +1,9 @@
-# Copyright (C) 2011 Nippon Telegraph and Telephone Corporation.
+# Ray Grant u1168200 CS4480
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+# The skeleton of this code is form this tutorial: http://sdnhub.org/tutorials/ryu/
+# with a licensing of http://www.apache.org/licenses/LICENSE-2.0
 #
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
-# implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+
 
 from ryu.base import app_manager
 from ryu.controller import ofp_event
@@ -134,6 +126,7 @@ class SimpleSwitch13(app_manager.RyuApp):
         print("")
 
 
+        # this next part is apart of future code...
         # # If you hit this you might want to increase
         # # the "miss_send_length" of your switch
         # if ev.msg.msg_len < ev.msg.total_len:
