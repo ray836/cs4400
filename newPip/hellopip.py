@@ -104,19 +104,19 @@ class SimpleSwitch13(app_manager.RyuApp):
 
         if ipv4_info:
             print("IPV4")
-            print("Check Sum: {}", ipv4_info.csum)
-            print("From   IP: {}", ipv4_info.src)
-            print("To     IP: {}", ipv4_info.dst)
-            print("Length   : {}", ipv4_info.total_length)
+            print("Check Sum: {}".format(ipv4_info.csum))
+            print("From   IP: {}".format(ipv4_info.src))
+            print("To     IP: {}".format(ipv4_info.dst))
+            print("Length   : {}".format(ipv4_info.total_length))
         else:
             print("Not IPV4")
 
         if ipv6_info:
             print("IPV4")
-            print("Check Sum: {}", ipv6_info.csum)
-            print("From   IP: {}", ipv6_info.src)
-            print("To     IP: {}", ipv6_info.dst)
-            print("Length   : {}", ipv6_info.total_length)
+            print("Check Sum: {}".format(ipv6_info.csum))
+            print("From   IP: {}".format(ipv6_info.src))
+            print("To     IP: {}".format(ipv6_info.dst))
+            print("Length   : {}".format(ipv6_info.total_length))
         else:
             print("Not IPV6")
 
