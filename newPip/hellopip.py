@@ -35,36 +35,36 @@ class SimpleSwitch13(app_manager.RyuApp):
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
     def switch_features_handler(self, ev):
         print("switch features handler")
-        # datapath = ev.msg.datapath
-        # ofproto = datapath.ofproto
-        # parser = datapath.ofproto_parser
+        datapath = ev.msg.datapath
+        ofproto = datapath.ofproto
+        parser = datapath.ofproto_parser
+
+        # install table-miss flow entry
         #
-        # # install table-miss flow entry
-        # #
-        # # We specify NO BUFFER to max_len of the output action due to
-        # # OVS bug. At this moment, if we specify a lesser number, e.g.,
-        # # 128, OVS will send Packet-In with invalid buffer_id and
-        # # truncated packet data. In that case, we cannot output packets
-        # # correctly.  The bug has been fixed in OVS v2.1.0.
-        # match = parser.OFPMatch()
-        # actions = [parser.OFPActionOutput(ofproto.OFPP_CONTROLLER,
-        #                                   ofproto.OFPCML_NO_BUFFER)]
+        # We specify NO BUFFER to max_len of the output action due to
+        # OVS bug. At this moment, if we specify a lesser number, e.g.,
+        # 128, OVS will send Packet-In with invalid buffer_id and
+        # truncated packet data. In that case, we cannot output packets
+        # correctly.  The bug has been fixed in OVS v2.1.0.
+        match = parser.OFPMatch()
+        actions = [parser.OFPActionOutput(ofproto.OFPP_CONTROLLER,
+                                          ofproto.OFPCML_NO_BUFFER)]
         # self.add_flow(datapath, 0, match, actions)
 
     def add_flow(self, datapath, priority, match, actions, buffer_id=None):
         print("in add flow +++")
-        # ofproto = datapath.ofproto
-        # parser = datapath.ofproto_parser
-        #
-        # inst = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS,
-        #                                      actions)]
-        # if buffer_id:
-        #     mod = parser.OFPFlowMod(datapath=datapath, buffer_id=buffer_id,
-        #                             priority=priority, match=match,
-        #                             instructions=inst)
-        # else:
-        #     mod = parser.OFPFlowMod(datapath=datapath, priority=priority,
-        #                             match=match, instructions=inst)
+        ofproto = datapath.ofproto
+        parser = datapath.ofproto_parser
+
+        inst = [parser.OFPInstructionActions(ofproto.OFPIT_APPLY_ACTIONS,
+                                             actions)]
+        if buffer_id:
+            mod = parser.OFPFlowMod(datapath=datapath, buffer_id=buffer_id,
+                                    priority=priority, match=match,
+                                    instructions=inst)
+        else:
+            mod = parser.OFPFlowMod(datapath=datapath, priority=priority,
+                                    match=match, instructions=inst)
         # datapath.send_msg(mod)
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
@@ -185,4 +185,4 @@ class SimpleSwitch13(app_manager.RyuApp):
 
         out = parser.OFPPacketOut(datapath=datapath, buffer_id=msg.buffer_id,
                                   in_port=in_port, actions=actions, data=data)
-        datapath.send_msg(out)
+        # datapath.send_msg(out)
