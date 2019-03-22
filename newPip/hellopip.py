@@ -107,7 +107,9 @@ class SimpleSwitch13(app_manager.RyuApp):
             print(" From Mac: {}".format(eth.src))
             print(" To   Mac: {}".format(eth.dst))
 
+        print("Controller Switch (OF)")
 
+        print("     Address, Port:", datapath.address)
 
         print("^^^^^^^^")
 
