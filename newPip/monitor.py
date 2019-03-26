@@ -211,10 +211,10 @@ class Monitor2(app_manager.RyuApp):
 
         if arp_info:
             if arp_info.dst_ip == self.virtual_ip:
-                dst = arp_info.dst_ip
+                #dst = arp_info.dst_ip
                 print("!@#$%^& YA! we hot a virtual port request")
                 out_port = self.get_optimal_server_number()
-                #dst = self.get_mac_from_num(out_port)
+                dst = self.get_mac_from_num(out_port)
                 self.backend_reached_count += 1
 
         actions = [parser.OFPActionOutput(out_port)]
