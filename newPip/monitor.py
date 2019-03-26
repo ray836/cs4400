@@ -201,10 +201,7 @@ class Monitor2(app_manager.RyuApp):
 
         # learn a mac address to avoid FLOOD next time.
         self.mac_to_port[dpid][src] = in_port
-        print(self.virtual_ip)
-        print("^vir^ dest->:")
-        if arp_info:
-            print("is arp ip_>",arp_info.dst_ip)
+
         if dst in self.mac_to_port[dpid]:
             out_port = self.mac_to_port[dpid][dst]
             print("dst in mac to port")
@@ -217,21 +214,21 @@ class Monitor2(app_manager.RyuApp):
                 print("!@#$%^& YA! we hot a virtual port request")
                 out_port = self.get_optimal_server_number()
                 dst = self.get_mac_from_num(out_port)
-                print("incrementing backend reached number")
-                print(out_port)
-                print(dst)
                 self.backend_reached_count += 1
 
-        print("out out port -->", out_port)
         actions = [parser.OFPActionOutput(out_port)]
 
         # install a flow to avoid packet_in next time
         if out_port != ofproto.OFPP_FLOOD:
-            print("out in outport ->", out_port)
-            print("out in dst -> ", dst)
             match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src)
             # verify if we have a valid buffer_id, if yes avoid to send both
             # flow_mod & packet_out
+            print("Push OF rules on s1:")
+            print("match:")
+            print("inport={}, dst-ip={}".format(in_port, dst))
+            print("action:")
+            print("set: dst-ip={}".format(out_port))
+            print("")
             if msg.buffer_id != ofproto.OFP_NO_BUFFER:
                 self.add_flow(datapath, 1, match, actions, msg.buffer_id)
                 return
@@ -245,6 +242,9 @@ class Monitor2(app_manager.RyuApp):
 
         out = parser.OFPPacketOut(datapath=datapath, buffer_id=msg.buffer_id,
                                   in_port=in_port, actions=actions, data=data)
+
+        if arp_info:
+            print("ARP Reply {} is-at {}".format(arp_info.dst_ip, dst))
 
         print("out = ", out)
 
