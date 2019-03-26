@@ -196,9 +196,10 @@ class Monitor2(app_manager.RyuApp):
 
         # learn a mac address to avoid FLOOD next time.
         self.mac_to_port[dpid][src] = in_port
-
+        print(self.virtual_ip)
         if dst in self.mac_to_port[dpid]:
             out_port = self.mac_to_port[dpid][dst]
+            print("dst in mac to port")
         elif dst == self.virtual_ip:
             print("!@#$%^& YA! we hot a virtual port request")
             out_port = self.get_optimal_server_number()
