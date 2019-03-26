@@ -206,6 +206,15 @@ class Monitor2(app_manager.RyuApp):
         else:
             out_port = ofproto.OFPP_FLOOD
 
+
+        if arp_info:
+            if arp_info.dst_ip == self.virtual_ip:
+                print("!@#$%^& YA! we hot a virtual port request")
+                out_port = self.get_optimal_server_number()
+                dst = self.get_mac_from_num(out_port)
+                print("incrementing backend reached number")
+                self.backend_reached_count += 1
+
         actions = [parser.OFPActionOutput(out_port)]
 
         # install a flow to avoid packet_in next time
