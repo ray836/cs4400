@@ -20,8 +20,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/monitor.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="272">
-              <caret line="226" column="35" selection-start-line="226" selection-start-column="27" selection-end-line="226" selection-end-column="35" />
+            <state relative-caret-position="370">
+              <caret line="98" column="38" selection-start-line="98" selection-start-column="38" selection-end-line="98" selection-end-column="38" />
               <folding>
                 <element signature="e#183#215#0" expanded="true" />
               </folding>
@@ -184,16 +184,15 @@
       <workItem from="1553094781875" duration="6779000" />
       <workItem from="1553210590395" duration="3882000" />
       <workItem from="1553267290642" duration="6616000" />
-      <workItem from="1553569491082" duration="9417000" />
+      <workItem from="1553569491082" duration="9673000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="28148000" />
+    <option name="totallyTimeSpent" value="28404000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-2560" y="23" width="1440" height="826" extended-state="0" />
-    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.095135905" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -236,8 +235,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/monitor.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="272">
-          <caret line="226" column="35" selection-start-line="226" selection-start-column="27" selection-end-line="226" selection-end-column="35" />
+        <state relative-caret-position="370">
+          <caret line="98" column="38" selection-start-line="98" selection-start-column="38" selection-end-line="98" selection-end-column="38" />
           <folding>
             <element signature="e#183#215#0" expanded="true" />
           </folding>
