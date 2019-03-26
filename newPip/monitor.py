@@ -94,6 +94,9 @@ class Monitor2(app_manager.RyuApp):
                                     priority=priority, match=match,
                                     instructions=inst)
         else:
+            print("flow info:")
+            print("match:", match)
+            print("actions: ", actions)
             mod = parser.OFPFlowMod(datapath=datapath, priority=priority,
                                     match=match, instructions=inst)
         datapath.send_msg(mod)
@@ -199,7 +202,7 @@ class Monitor2(app_manager.RyuApp):
         print(self.virtual_ip)
         print("^vir^ dest->:")
         if arp_info:
-            print(arp_info.dst_ip)
+            print("is arp ip_>",arp_info.dst_ip)
         if dst in self.mac_to_port[dpid]:
             out_port = self.mac_to_port[dpid][dst]
             print("dst in mac to port")
