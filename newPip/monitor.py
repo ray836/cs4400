@@ -207,6 +207,7 @@ class Monitor2(app_manager.RyuApp):
             print("dst in mac to port")
         else:
             out_port = ofproto.OFPP_FLOOD
+            print("FLOODING THE PORTS!!!!!!!!!!!!!")
 
 
         if arp_info:
