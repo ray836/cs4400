@@ -213,6 +213,8 @@ class Monitor2(app_manager.RyuApp):
                 out_port = self.get_optimal_server_number()
                 dst = self.get_mac_from_num(out_port)
                 print("incrementing backend reached number")
+                print(out_port)
+                print(dst)
                 self.backend_reached_count += 1
 
         actions = [parser.OFPActionOutput(out_port)]
