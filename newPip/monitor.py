@@ -211,9 +211,10 @@ class Monitor2(app_manager.RyuApp):
 
         if arp_info:
             if arp_info.dst_ip == self.virtual_ip:
+                dst = arp_info.dst_ip
                 print("!@#$%^& YA! we hot a virtual port request")
                 out_port = self.get_optimal_server_number()
-                dst = self.get_mac_from_num(out_port)
+                #dst = self.get_mac_from_num(out_port)
                 self.backend_reached_count += 1
 
         actions = [parser.OFPActionOutput(out_port)]
@@ -227,7 +228,8 @@ class Monitor2(app_manager.RyuApp):
             print("match:")
             print("inport={}, dst-ip={}".format(in_port, dst))
             print("action:")
-            print("set: dst-ip={}".format(out_port))
+            print("set: dst-ip={}".format(dst))
+            print("set: outport={}".format(out_port))
             print("")
             if msg.buffer_id != ofproto.OFP_NO_BUFFER:
                 self.add_flow(datapath, 1, match, actions, msg.buffer_id)
