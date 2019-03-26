@@ -16,10 +16,10 @@ from ryu.lib.packet import ether_types
 from ryu import cfg
 
 
-CONF = cfg.CONF
-CONF.register_opts([
-    cfg.StrOpt('config', default='[]', help='config'),
-    ])
+# CONF = cfg.CONF
+# CONF.register_opts([
+#     cfg.StrOpt('config', default='[]', help='config'),
+#     ])
 
 
 class Monitor2(app_manager.RyuApp):
