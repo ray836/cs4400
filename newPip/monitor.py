@@ -203,13 +203,6 @@ class Monitor2(app_manager.RyuApp):
         if dst in self.mac_to_port[dpid]:
             out_port = self.mac_to_port[dpid][dst]
             print("dst in mac to port")
-        elif arp_info:
-            if arp_info.dst_ip == self.virtual_ip:
-                print("!@#$%^& YA! we hot a virtual port request")
-                out_port = self.get_optimal_server_number()
-                dst = self.get_mac_from_num(out_port)
-                print("incrementing backend reached number")
-                self.backend_reached_count += 1
         else:
             out_port = ofproto.OFPP_FLOOD
 
