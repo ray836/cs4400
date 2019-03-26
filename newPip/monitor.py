@@ -45,9 +45,9 @@ class Monitor2(app_manager.RyuApp):
 
 
         if optimal_number < 10:
-            mac_address = '00:00:00:00:00:0' + optimal_number
+            mac_address = '00:00:00:00:00:0' + str(optimal_number)
         else:
-            mac_address = '00:00:00:00:00:' + optimal_number
+            mac_address = '00:00:00:00:00:' + str(optimal_number)
 
         return mac_address
 
