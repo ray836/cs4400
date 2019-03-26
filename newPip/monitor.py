@@ -16,20 +16,52 @@ from ryu.lib.packet import ether_types
 from ryu import cfg
 
 
-# CONF = cfg.CONF
-# CONF.register_opts([
-#     cfg.StrOpt('config', default='[]', help='config'),
-#     ])
-
 
 class Monitor2(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
     package_count = 0
+    backend_reached_count = 0
 
     def __init__(self, *args, **kwargs):
         super(Monitor2, self).__init__(*args, **kwargs)
         self.mac_to_port = {}
         self.package_count = 0
+        self.backend_reached_count = 0
+
+        CONF = cfg.CONF
+        CONF.register_opts([
+            cfg.IntOpt('front_end_testers', default=4, help=('Number of Front End Testers')),
+            cfg.IntOpt('back_end_servers', default=2, help=('Number of Back End Testers')),
+            cfg.StrOpt('virtual_ip', default='10.0.0.10', help=('Virtual IP address'))
+        ])
+
+        self.front_end_testers = CONF.front_end_testers
+        self.back_end_servers = CONF.back_end_servers
+        self.virtual_ip = CONF.virtual_ip
+        self.next_out = self.front_end_testers
+
+
+    def get_mac_from_num(self, optimal_number):
+
+
+        if optimal_number < 10:
+            mac_address = '00:00:00:00:00:0' + optimal_number
+        else:
+            mac_address = '00:00:00:00:00:' + optimal_number
+
+        return mac_address
+
+    def get_optimal_server_number(self):
+        server_count = self.back_end_servers
+        client_count = self.front_end_testers
+
+        optimal_number = client_count + 1 + (self.backend_reached_count % server_count)
+
+        return optimal_number
+
+
+
+
 
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
     def switch_features_handler(self, ev):
@@ -98,6 +130,9 @@ class Monitor2(app_manager.RyuApp):
             print("     From Mac: {}".format(arp_info.src_mac))
             print("     To   Mac: {}".format(arp_info.dst_mac))
 
+            print("ARP Request who-has {} tell {}".format(arp_info.dst_ip, arp_info.src_ip))
+            print("ARP Reply {} is-at {}".format(arp_info.dst_ip, self.back_end_servers))
+
         if ipv4_info:
             print(" IPV4")
             print("     Check Sum: {}".format(ipv4_info.csum))
@@ -164,6 +199,12 @@ class Monitor2(app_manager.RyuApp):
 
         if dst in self.mac_to_port[dpid]:
             out_port = self.mac_to_port[dpid][dst]
+        elif dst == self.virtual_ip:
+            print("!@#$%^& YA! we hot a virtual port request")
+            out_port = self.get_optimal_server_number()
+            dst = self.get_mac_from_num(out_port)
+            print("incrementing backend reached number")
+            self.backend_reached_count += 1
         else:
             out_port = ofproto.OFPP_FLOOD
 
