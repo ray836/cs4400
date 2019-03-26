@@ -217,10 +217,13 @@ class Monitor2(app_manager.RyuApp):
                 print(dst)
                 self.backend_reached_count += 1
 
+        print("out out port -->", out_port)
         actions = [parser.OFPActionOutput(out_port)]
 
         # install a flow to avoid packet_in next time
         if out_port != ofproto.OFPP_FLOOD:
+            print("out in outport ->", out_port)
+            print("out in dst -> ", dst)
             match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src)
             # verify if we have a valid buffer_id, if yes avoid to send both
             # flow_mod & packet_out
