@@ -224,19 +224,19 @@ class Monitor2(app_manager.RyuApp):
                 arp_reply.add_protocol(
                     ethernet.ethernet(
                         ethertype=ether_types.ETH_TYPE_ARP,
-                        src=arp_info.dst,
+                        src=dst,
                         dst=arp_info.src_mac
                     )
                 )
                 print()
-                print("arp_info.dst_mac", arp_info.dst)
+                print("arp_info.dst_mac", dst)
                 print("arp_info.src_mac", arp_info.src_mac)
                 print()
                 arp_reply.add_protocol(
                     arp.arp(
                         opcode=arp.ARP_REPLY,
                         src_ip=arp_info.dst_ip,
-                        src_mac=arp_info.dst,
+                        src_mac=dst,
                         dst_ip=arp_info.src_ip,
                         dst_mac=arp_info.src_mac
                     )
