@@ -210,46 +210,45 @@ class Monitor2(app_manager.RyuApp):
             print("FLOODING THE PORTS!!!!!!!!!!!!!")
 
 
-        if arp_info:
-            if arp_info.dst_ip == self.virtual_ip:
-                #dst = arp_info.dst_ip
-                print("!@#$%^& YA! we hot a virtual port request")
-                out_port = self.get_optimal_server_number()
-                dst = self.get_mac_from_num(out_port)
-                self.backend_reached_count += 1
+        if arp_info and arp_info.dst_ip == self.virtual_ip:
+            #dst = arp_info.dst_ip
+            print("!@#$%^& YA! we hot a virtual port request")
+            out_port = self.get_optimal_server_number()
+            dst = self.get_mac_from_num(out_port)
+            self.backend_reached_count += 1
 
-                # send arp request to host
-                actions = [parser.OFPActionOutput(in_port)]
-                arp_reply = packet.Packet()
-                arp_reply.add_protocol(
-                    ethernet.ethernet(
-                        ethertype=ether_types.ETH_TYPE_ARP,
-                        src=dst,
-                        dst=arp_info.src_mac
-                    )
+            # send arp request to host
+            actions = [parser.OFPActionOutput(in_port)]
+            arp_reply = packet.Packet()
+            arp_reply.add_protocol(
+                ethernet.ethernet(
+                    ethertype=ether_types.ETH_TYPE_ARP,
+                    src=dst,
+                    dst=arp_info.src_mac
                 )
-                print()
-                print("arp_info.dst_mac", dst)
-                print("arp_info.src_mac", arp_info.src_mac)
-                print()
-                arp_reply.add_protocol(
-                    arp.arp(
-                        opcode=arp.ARP_REPLY,
-                        src_ip=arp_info.dst_ip,
-                        src_mac=dst,
-                        dst_ip=arp_info.src_ip,
-                        dst_mac=arp_info.src_mac
-                    )
+            )
+            print()
+            print("arp_info.dst_mac", dst)
+            print("arp_info.src_mac", arp_info.src_mac)
+            print()
+            arp_reply.add_protocol(
+                arp.arp(
+                    opcode=arp.ARP_REPLY,
+                    src_ip=arp_info.dst_ip,
+                    src_mac=dst,
+                    dst_ip=arp_info.src_ip,
+                    dst_mac=arp_info.src_mac
                 )
-                arp_reply.serialize()
+            )
+            arp_reply.serialize()
 
-                out = parser.OFPPacketOut(
-                    datapath=datapath,
-                    buffer_id=ofproto.OFP_NO_BUFFER,
-                    in_port=ofproto.OFPP_CONTROLLER,
-                    actions=actions, data=arp_reply.data)
+            out = parser.OFPPacketOut(
+                datapath=datapath,
+                buffer_id=ofproto.OFP_NO_BUFFER,
+                in_port=ofproto.OFPP_CONTROLLER,
+                actions=actions, data=arp_reply.data)
 
-                datapath.send_msg(out)
+            datapath.send_msg(out)
         else:
             actions = [parser.OFPActionOutput(out_port)]
 
