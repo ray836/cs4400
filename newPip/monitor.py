@@ -228,6 +228,10 @@ class Monitor2(app_manager.RyuApp):
                         dst=arp_info.src_mac
                     )
                 )
+                print()
+                print("arp_info.dst_mac", arp_info.dst_mac)
+                print("arp_info.src_mac", arp_info.src_mac)
+                print()
                 arp_reply.add_protocol(
                     arp.arp(
                         opcode=arp.ARP_REPLY,
