@@ -234,6 +234,7 @@ class Monitor2(app_manager.RyuApp):
 
             if arp_info.src_mac == '00:00:00:00:00:08' or arp_info.src_mac == '00:00:00:00:00:09':
                 dst = '00:00:00:00:00:01'
+                print("new dst: ", dst)
             else:
                 print("arp_info.mac not 09 or 08", arp_info.src_mac)
 
