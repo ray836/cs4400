@@ -250,39 +250,39 @@ class Monitor2(app_manager.RyuApp):
                     actions=actions, data=arp_reply.data)
 
                 datapath.send_msg(out)
-            else:
-                actions = [parser.OFPActionOutput(out_port)]
+        else:
+            actions = [parser.OFPActionOutput(out_port)]
 
-                # install a flow to avoid packet_in next time
-                if out_port != ofproto.OFPP_FLOOD:
-                    match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src)
-                    # verify if we have a valid buffer_id, if yes avoid to send both
-                    # flow_mod & packet_out
-                    print("Push OF rules on s1:")
-                    print("match:")
-                    print("inport={}, dst-ip={}".format(in_port, dst))
-                    print("action:")
-                    print("set: dst-ip={}".format(dst))
-                    print("set: outport={}".format(out_port))
-                    print("")
-                    if msg.buffer_id != ofproto.OFP_NO_BUFFER:
-                        self.add_flow(datapath, 1, match, actions, msg.buffer_id)
-                        return
-                    else:
-                        self.add_flow(datapath, 1, match, actions)
-                data = None
-                if msg.buffer_id == ofproto.OFP_NO_BUFFER:
-                    data = msg.data
+            # install a flow to avoid packet_in next time
+            if out_port != ofproto.OFPP_FLOOD:
+                match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src)
+                # verify if we have a valid buffer_id, if yes avoid to send both
+                # flow_mod & packet_out
+                print("Push OF rules on s1:")
+                print("match:")
+                print("inport={}, dst-ip={}".format(in_port, dst))
+                print("action:")
+                print("set: dst-ip={}".format(dst))
+                print("set: outport={}".format(out_port))
+                print("")
+                if msg.buffer_id != ofproto.OFP_NO_BUFFER:
+                    self.add_flow(datapath, 1, match, actions, msg.buffer_id)
+                    return
+                else:
+                    self.add_flow(datapath, 1, match, actions)
+            data = None
+            if msg.buffer_id == ofproto.OFP_NO_BUFFER:
+                data = msg.data
 
-                out = parser.OFPPacketOut(datapath=datapath, buffer_id=msg.buffer_id,
-                                          in_port=in_port, actions=actions, data=data)
+            out = parser.OFPPacketOut(datapath=datapath, buffer_id=msg.buffer_id,
+                                      in_port=in_port, actions=actions, data=data)
 
-                if arp_info:
-                    print("ARP Reply {} is-at {}".format(arp_info.dst_ip, dst))
+            if arp_info:
+                print("ARP Reply {} is-at {}".format(arp_info.dst_ip, dst))
 
-                print("out = ", out)
+            print("out = ", out)
 
-                datapath.send_msg(out)
+            datapath.send_msg(out)
 
 
 
