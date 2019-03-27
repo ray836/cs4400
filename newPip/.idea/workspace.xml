@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="81b53609-ee5c-480e-aae5-520fcc3da7c7" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/monitor.py" beforeDir="false" afterPath="$PROJECT_DIR$/monitor.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../practice/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../practice/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../practice/controller_prac.py" beforeDir="false" afterPath="$PROJECT_DIR$/../practice/controller_prac.py" afterDir="false" />
     </list>
@@ -20,8 +21,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/monitor.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="357">
-              <caret line="249" lean-forward="true" selection-start-line="249" selection-end-line="249" />
+            <state relative-caret-position="286">
+              <caret line="100" column="67" selection-start-line="100" selection-start-column="67" selection-end-line="100" selection-end-column="67" />
               <folding>
                 <element signature="e#183#215#0" expanded="true" />
               </folding>
@@ -186,15 +187,16 @@
       <workItem from="1553094781875" duration="6779000" />
       <workItem from="1553210590395" duration="3882000" />
       <workItem from="1553267290642" duration="6616000" />
-      <workItem from="1553569491082" duration="18187000" />
+      <workItem from="1553569491082" duration="18472000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="36918000" />
+    <option name="totallyTimeSpent" value="37203000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1223" height="826" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.11261643" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -237,8 +239,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/monitor.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="357">
-          <caret line="249" lean-forward="true" selection-start-line="249" selection-end-line="249" />
+        <state relative-caret-position="286">
+          <caret line="100" column="67" selection-start-line="100" selection-start-column="67" selection-end-line="100" selection-end-column="67" />
           <folding>
             <element signature="e#183#215#0" expanded="true" />
           </folding>

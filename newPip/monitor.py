@@ -94,13 +94,8 @@ class Monitor2(app_manager.RyuApp):
                                     priority=priority, match=match,
                                     instructions=inst)
         else:
-            print("flow info:")
-            print("match:", match)
-            print("actions: ", actions)
             mod = parser.OFPFlowMod(datapath=datapath, priority=priority,
                                     match=match, instructions=inst)
-        print("sending mod...")
-        print(mod)
         datapath.send_msg(mod)
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
