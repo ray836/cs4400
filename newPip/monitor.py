@@ -213,7 +213,7 @@ class Monitor2(app_manager.RyuApp):
             self.backend_reached_count += 1
 
             # send arp request to host
-            actions = [ parser.OFPActionSetField(eth_src=arp_info.src_mac), parser.OFPActionOutput(in_port)]
+            actions = [ parser.OFPActionSetField(ipv4_src="10.0.0.15"), parser.OFPActionOutput(in_port)]
             arp_reply = packet.Packet()
             arp_reply.add_protocol(
                 ethernet.ethernet(
