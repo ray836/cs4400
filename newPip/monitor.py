@@ -228,9 +228,13 @@ class Monitor2(app_manager.RyuApp):
                 )
             )
             print()
-            print("arp_info.dst_mac", dst)
+            print("dst", dst)
             print("arp_info.src_mac", arp_info.src_mac)
             print()
+
+            if arp_info.src_mac == '00:00:00:00:00:08' or arp_info.src_mac == '00:00:00:00:00:09':
+                dst = '00:00:00:00:00:01'
+
             arp_reply.add_protocol(
                 arp.arp(
                     opcode=arp.ARP_REPLY,
@@ -279,7 +283,6 @@ class Monitor2(app_manager.RyuApp):
             if arp_info:
                 print("ARP Reply {} is-at {}".format(arp_info.dst_ip, dst))
 
-            print("out = ", out)
 
             datapath.send_msg(out)
 
