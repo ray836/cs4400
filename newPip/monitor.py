@@ -166,27 +166,18 @@ class Monitor2(app_manager.RyuApp):
             self.logger.debug("Advertising...")
             return
 
+        #getting packet protocols
         protocol_list = []
         for p in pkt.protocols:
             protocol_list.append(p.protocol_name)
 
+        # printing packet info
         self.print_packet_info(eth, arp_info, ipv4_info, ipv6_info, icmp_info, in_port, protocol_list, datapath)
 
-
-        # this next part is apart of future code...
-        # If you hit this you might want to increase
-        # the "miss_send_length" of your switch
+        # increase the "miss_send_length" of your switch
         if ev.msg.msg_len < ev.msg.total_len:
             self.logger.debug("packet truncated: only %s of %s bytes",
                               ev.msg.msg_len, ev.msg.total_len)
-        # msg = ev.msg
-        # datapath = msg.datapath
-        # ofproto = datapath.ofproto
-        #
-        # in_port = msg.match['in_port']
-        #
-        # pkt = packet.Packet(msg.data)
-        # eth = pkt.get_protocols(ethernet.ethernet)[0]
 
         if eth.ethertype == ether_types.ETH_TYPE_LLDP:
             # ignore lldp packet
@@ -224,8 +215,11 @@ class Monitor2(app_manager.RyuApp):
             dst = self.get_mac_from_num(out_port)
             self.backend_reached_count += 1
 
+            actions = [parser.OFPActionOutput(in_port)]  # parser.OFPActionSetField(ipv4_src="10.0.0.15"),
+            new_match = parser.OFPMatch(in_port=in_port, eth_type=ether_types.ETH_TYPE_IP, ipv4_dst=arp_info.dst_ip)
+            self.add_flow(datapath, 1, new_match, actions, msg.buffer_id)
+
             # send arp request to host
-            actions = [ parser.OFPActionOutput(in_port)] #parser.OFPActionSetField(ipv4_src="10.0.0.15"),
             arp_reply = packet.Packet()
             arp_reply.add_protocol(
                 ethernet.ethernet(
@@ -234,17 +228,6 @@ class Monitor2(app_manager.RyuApp):
                     dst=arp_info.src_mac
                 )
             )
-            print()
-            print("dst", dst)
-            print("arp_info.src_mac", arp_info.src_mac)
-            print()
-
-            if arp_info.src_mac == '00:00:00:00:00:08' or arp_info.src_mac == '00:00:00:00:00:09':
-                dst = '00:00:00:00:00:01'
-                print("new dst: ", dst)
-            else:
-                print("arp_info.mac not 09 or 08", arp_info.src_mac)
-
             arp_reply.add_protocol(
                 arp.arp(
                     opcode=arp.ARP_REPLY,
@@ -254,7 +237,7 @@ class Monitor2(app_manager.RyuApp):
                     dst_mac=arp_info.src_mac
                 )
             )
-            arp_reply.serialize()
+            arp_reply.serialize() # this is the serialization (payload length and checksum are automatically calculated)
 
             out = parser.OFPPacketOut(
                 datapath=datapath,
@@ -263,6 +246,7 @@ class Monitor2(app_manager.RyuApp):
                 actions=actions, data=arp_reply.data)
 
             datapath.send_msg(out)
+            print("packet was sent out!")
         else:
             actions = [parser.OFPActionOutput(out_port)]
 
