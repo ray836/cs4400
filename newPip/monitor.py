@@ -215,7 +215,7 @@ class Monitor2(app_manager.RyuApp):
             dst = self.get_mac_from_num(out_port)
             self.backend_reached_count += 1
 
-            actions = [parser.OFPActionOutput(in_port)]  # parser.OFPActionSetField(ipv4_src="10.0.0.15"),
+            actions = [parser.OFPActionOutput(out_port)]  # parser.OFPActionSetField(ipv4_src="10.0.0.15"),
             new_match = parser.OFPMatch(in_port=in_port, eth_type=ether_types.ETH_TYPE_IP, ipv4_dst=arp_info.dst_ip)
             self.add_flow(datapath, 1, new_match, actions, msg.buffer_id)
 
