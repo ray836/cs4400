@@ -98,30 +98,9 @@ class Monitor2(app_manager.RyuApp):
                                     match=match, instructions=inst)
         datapath.send_msg(mod)
 
-    @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
-    def _packet_in_handler(self, ev):
-
-        msg = ev.msg  # Object representing a packet_in data structure.
-        datapath = msg.datapath  # Switch Datapath ID
-        ofproto = datapath.ofproto  # OpenFlow Protocol version the entities negotiated. In our case OF1.3
-        in_port = msg.match['in_port']
-
-        pkt = packet.Packet(msg.data)
-        eth = pkt.get_protocol(ethernet.ethernet)
-        arp_info = pkt.get_protocol(arp.arp)
-        ipv4_info = pkt.get_protocol(ipv4.ipv4)
-        ipv6_info = pkt.get_protocol(ipv6.ipv6)
-        icmp_info = pkt.get_protocol(icmp.icmp)
-        self.package_count += 1
-
-        protocol_list = []
-        for p in pkt.protocols:
-            protocol_list.append(p.protocol_name)
-
+    def print_packet_info(self, eth, arp_info, ipv4_info, ipv6_info, icmp_info, in_port, protocol_list, datapath):
         print("---------------------------------------------------")
         print("Packet ({}) Received on Port({}): {}".format(self.package_count, in_port, protocol_list))
-
-
 
         if arp_info:
             print(" ARP")
@@ -155,7 +134,6 @@ class Monitor2(app_manager.RyuApp):
             print(" PING")
 
         if eth:
-
             print(" ETH")
 
             print("  From Mac: {}".format(eth.src))
@@ -167,6 +145,33 @@ class Monitor2(app_manager.RyuApp):
 
         print("")
 
+    @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
+    def _packet_in_handler(self, ev):
+
+        msg = ev.msg  # Object representing a packet_in data structure.
+        datapath = msg.datapath  # Switch Datapath ID
+        ofproto = datapath.ofproto  # OpenFlow Protocol version the entities negotiated. In our case OF1.3
+        parser = datapath.ofproto_parser
+        in_port = msg.match['in_port']
+
+        pkt = packet.Packet(msg.data)
+        eth = pkt.get_protocol(ethernet.ethernet)
+        arp_info = pkt.get_protocol(arp.arp)
+        ipv4_info = pkt.get_protocol(ipv4.ipv4)
+        ipv6_info = pkt.get_protocol(ipv6.ipv6)
+        icmp_info = pkt.get_protocol(icmp.icmp)
+        self.package_count += 1
+
+        if eth.ethertype == ether_types.ETH_TYPE_LLDP:
+            self.logger.debug("Advertising...")
+            return
+
+        protocol_list = []
+        for p in pkt.protocols:
+            protocol_list.append(p.protocol_name)
+
+        self.print_packet_info(eth, arp_info, ipv4_info, ipv6_info, icmp_info, in_port, protocol_list, datapath)
+
 
         # this next part is apart of future code...
         # If you hit this you might want to increase
@@ -174,40 +179,47 @@ class Monitor2(app_manager.RyuApp):
         if ev.msg.msg_len < ev.msg.total_len:
             self.logger.debug("packet truncated: only %s of %s bytes",
                               ev.msg.msg_len, ev.msg.total_len)
-        msg = ev.msg
-        datapath = msg.datapath
-        ofproto = datapath.ofproto
-        parser = datapath.ofproto_parser
-        in_port = msg.match['in_port']
-
-        pkt = packet.Packet(msg.data)
-        eth = pkt.get_protocols(ethernet.ethernet)[0]
+        # msg = ev.msg
+        # datapath = msg.datapath
+        # ofproto = datapath.ofproto
+        #
+        # in_port = msg.match['in_port']
+        #
+        # pkt = packet.Packet(msg.data)
+        # eth = pkt.get_protocols(ethernet.ethernet)[0]
 
         if eth.ethertype == ether_types.ETH_TYPE_LLDP:
             # ignore lldp packet
             return
-        dst = eth.dst
-        src = eth.src
+
+
+        mac_dst = eth.dst
+        mac_src = eth.src
 
         dpid = datapath.id
         self.mac_to_port.setdefault(dpid, {})
 
-        self.logger.info("packet in %s %s %s %s", dpid, src, dst, in_port)
+        self.logger.info("packet in %s %s %s %s", dpid, mac_src, mac_dst, in_port)
 
         # learn a mac address to avoid FLOOD next time.
-        self.mac_to_port[dpid][src] = in_port
+        self.mac_to_port[dpid][mac_src] = in_port
 
-        if dst in self.mac_to_port[dpid]:
-            out_port = self.mac_to_port[dpid][dst]
+        if mac_dst in self.mac_to_port[dpid]:
+            out_port = self.mac_to_port[dpid][mac_dst]
             print("dst in mac to port")
         else:
-            out_port = ofproto.OFPP_FLOOD
-            print("FLOODING THE PORTS!!!!!!!!!!!!!")
+            if arp_info and arp_info.dst_ip == self.virtual_ip:
+                print("Not FLOODING THE PORTS")
+            else:
+                out_port = ofproto.OFPP_FLOOD
+                print("FLOODING THE PORTS")
+
 
 
         if arp_info and arp_info.dst_ip == self.virtual_ip:
-            #dst = arp_info.dst_ip
-            print("!@#$%^& YA! we hot a virtual port request")
+
+            #
+            print("we got a virtual address request")
             out_port = self.get_optimal_server_number()
             dst = self.get_mac_from_num(out_port)
             self.backend_reached_count += 1
@@ -256,14 +268,14 @@ class Monitor2(app_manager.RyuApp):
 
             # install a flow to avoid packet_in next time
             if out_port != ofproto.OFPP_FLOOD:
-                match = parser.OFPMatch(in_port=in_port, eth_dst=dst, eth_src=src)
+                match = parser.OFPMatch(in_port=in_port, eth_dst=mac_dst, eth_src=mac_src)
                 # verify if we have a valid buffer_id, if yes avoid to send both
                 # flow_mod & packet_out
                 print("Push OF rules on s1:")
                 print("match:")
-                print("inport={}, dst-ip={}".format(in_port, dst))
+                print("inport={}, dst-ip={}".format(in_port, mac_dst))
                 print("action:")
-                print("set: dst-ip={}".format(dst))
+                print("set: dst-ip={}".format(mac_dst))
                 print("set: outport={}".format(out_port))
                 print("")
                 if msg.buffer_id != ofproto.OFP_NO_BUFFER:
@@ -279,7 +291,7 @@ class Monitor2(app_manager.RyuApp):
                                       in_port=in_port, actions=actions, data=data)
 
             if arp_info:
-                print("ARP Reply {} is-at {}".format(arp_info.dst_ip, dst))
+                print("ARP Reply {} is-at {}".format(arp_info.dst_ip, mac_dst))
 
 
             datapath.send_msg(out)
