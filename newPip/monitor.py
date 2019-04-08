@@ -36,10 +36,10 @@ class Monitor2(app_manager.RyuApp):
             cfg.StrOpt('virtual_ip', default='10.0.0.10', help=('Virtual IP address'))
         ])
 
-        self.front_end_testers = CONF.front_end_testers
-        self.back_end_servers = CONF.back_end_servers
+        self.hosts = CONF.hosts
+        self.servers = CONF.servers
         self.virtual_ip = CONF.virtual_ip
-        self.next_out = self.front_end_testers
+        self.next_out = self.hosts
         self.known_routes = {}
 
 
@@ -54,8 +54,8 @@ class Monitor2(app_manager.RyuApp):
         return mac_address
 
     def get_optimal_server_number(self):
-        server_count = self.back_end_servers
-        client_count = self.front_end_testers
+        server_count = self.servers
+        client_count = self.hosts
 
         optimal_number = client_count + 1 + (self.backend_reached_count % server_count)
 
@@ -112,7 +112,7 @@ class Monitor2(app_manager.RyuApp):
             print("     To   Mac: {}".format(arp_info.dst_mac))
 
             print("ARP Request who-has {} tell {}".format(arp_info.dst_ip, arp_info.src_ip))
-            print("ARP Reply {} is-at {}".format(arp_info.dst_ip, self.back_end_servers))
+            print("ARP Reply {} is-at {}".format(arp_info.dst_ip, self.servers))
 
         if ipv4_info:
             print(" IPV4")
