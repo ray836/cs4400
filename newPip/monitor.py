@@ -288,6 +288,7 @@ class Monitor2(app_manager.RyuApp):
             print("packet was sent out!")
 
         elif arp_info.dst_ip in self.known_routes:
+            print("where in loop back src:", arp_info.src_ip, " dest: ", arp_info.dst_ip)
             port_filler, ip_filler, host_mac, host_port = self.known_routes[arp_info.dst_ip]
 
             arp_pkt = packet.Packet()
