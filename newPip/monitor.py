@@ -1,5 +1,7 @@
 # Ray Grant u1168200 CS4480
 #
+# I Ray Grant have coded all of this monitor.py file while referencing and getting ideas from the sources in the README
+#
 # The skeleton of this code is form this tutorial: http://sdnhub.org/tutorials/ryu/
 # with a licensing of http://www.apache.org/licenses/LICENSE-2.0
 #
@@ -80,6 +82,7 @@ class Monitor2(app_manager.RyuApp):
         self.add_flow(datapath, 0, match, actions)
 
 
+    # for this I used info from the switch13 example
     def add_flow(self, datapath, priority, match, actions, buffer_id=None):
         '''
 
@@ -173,6 +176,13 @@ class Monitor2(app_manager.RyuApp):
         :return: void
         '''
 
+        # The skeliton of this function was created with and inspired by:
+        # simpleswitch13.py,
+        # https://ryu.readthedocs.io/en/latest/ryu_app_api.html,
+        # https://ryu.readthedocs.io/en/latest/ofproto_v1_3_ref.html,
+        # https://github.com/osrg/ryu/tree/master/ryu
+
+        # Part 1
         msg = ev.msg  # Object representing a packet_in data structure.
         datapath = msg.datapath  # Switch Datapath  or ID
         ofproto = datapath.ofproto  # OpenFlow Protocol version the entities negotiated. We use OF1.3
@@ -209,15 +219,16 @@ class Monitor2(app_manager.RyuApp):
             # ignore lldp packet
             return
 
-
         mac_dst = eth.dst
         mac_src = eth.src
 
         dpid = datapath.id
+
         self.mac_to_port.setdefault(dpid, {})
 
         self.logger.info("packet in %s %s %s %s", dpid, mac_src, mac_dst, in_port)
 
+        # Part 2
         # learn a mac address to avoid FLOOD next time.
         self.mac_to_port[dpid][mac_src] = in_port
 
@@ -232,6 +243,7 @@ class Monitor2(app_manager.RyuApp):
                 # flood the ports
                 out_port = ofproto.OFPP_FLOOD
 
+        # Part 3
         # if its an arp request
         if arp_info:
             # if its destined to the virtual ip
@@ -296,6 +308,7 @@ class Monitor2(app_manager.RyuApp):
 
                 datapath.send_msg(out)
 
+            # Part 4
             elif arp_info.dst_ip in self.known_routes:
 
                 port_filler, ip_filler, host_mac, host_port, host_ip = self.known_routes[arp_info.dst_ip]
@@ -316,7 +329,7 @@ class Monitor2(app_manager.RyuApp):
 
                 datapath.send_msg(msg_to_send)
 
-
+        #part 5
         else:
             actions = [parser.OFPActionOutput(out_port)]
 
