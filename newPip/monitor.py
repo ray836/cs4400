@@ -302,6 +302,9 @@ class Monitor2(app_manager.RyuApp):
 
             actions=[parser.OFPActionOutput(in_port)]
 
+            print("host_port:", host_port, " in_port: ", in_port)
+            print("host type: ", type(host_port), " in_port type: ", type(in_port))
+
             msg_to_send = parser.OFPPacketOut(datapath=datapath, in_port=host_port, actions=actions, data=data, buffer_id=ofproto.OFP_NO_BUFFER)
 
             datapath.send_msg(msg_to_send)
