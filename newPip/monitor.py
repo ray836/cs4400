@@ -215,15 +215,15 @@ class Monitor2(app_manager.RyuApp):
             dst = self.get_mac_from_num(out_port)
             self.backend_reached_count += 1
 
-            # matching src(server) to dest(host)
-            # print(">>>>>>>>>srcip: ", arp_info.src_ip, " dst_ip: ", arp_info.dst_ip)
-            # match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_IP, ipv4_dst=arp_info.src_ip, ipv4_src=arp_info.dst_ip)
-            # actions = [parser.OFPActionOutput(in_port)]
-            # self.add_flow(datapath, 1, match, actions, msg.buffer_id)
-            #
-            # match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_IP, ipv4_dst=self.virtual_ip, ipv4_src=arp_info.src_ip)
-            # actions = [parser.OFPActionSetField(ipv4_dst=arp_info.dst_ip), parser.OFPActionOutput(out_port)]
-            # self.add_flow(datapath, 1, match, actions, msg.buffer_id)
+            #matching src(server) to dest(host)
+            print(">>>>>>>>>srcip: ", arp_info.src_ip, " dst_ip: ", arp_info.dst_ip)
+            match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_IP, ipv4_dst=arp_info.src_ip, ipv4_src=arp_info.dst_ip)
+            actions = [parser.OFPActionOutput(in_port)]
+            self.add_flow(datapath, 1, match, actions, msg.buffer_id)
+
+            match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_IP, ipv4_dst=self.virtual_ip, ipv4_src=arp_info.src_ip)
+            actions = [parser.OFPActionSetField(ipv4_dst=arp_info.dst_ip), parser.OFPActionOutput(out_port)]
+            self.add_flow(datapath, 1, match, actions, msg.buffer_id)
 
 
 
