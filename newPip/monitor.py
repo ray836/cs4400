@@ -209,112 +209,113 @@ class Monitor2(app_manager.RyuApp):
 
 
 
-        if arp_info and arp_info.dst_ip == self.virtual_ip:
+        if arp_info:
+            if arp_info.dst_ip == self.virtual_ip:
 
-            #
-            print("we got a virtual address request")
-            out_port = self.get_optimal_server_number()
-            dst = self.get_mac_from_num(out_port)
-            self.backend_reached_count += 1
+                #
+                print("we got a virtual address request")
+                out_port = self.get_optimal_server_number()
+                dst = self.get_mac_from_num(out_port)
+                self.backend_reached_count += 1
 
-            if arp_info.src_ip not in self.known_routes:
-                self.known_routes[arp_info.src_ip] = {out_port, dst, mac_src, in_port}
-
-
-            #matching src(server) to dest(host)
-            print(">>>>>>>>>datapath.id:: ", datapath.id)
-            match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_IP, ipv4_dst=arp_info.src_ip, ipv4_src=arp_info.dst_ip)
-            actions = [parser.OFPActionOutput(in_port)]
-            self.add_flow(datapath, 1, match, actions, msg.buffer_id)
-
-            match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_IP, ipv4_dst=self.virtual_ip, ipv4_src=arp_info.src_ip)
-            actions = [parser.OFPActionSetField(ipv4_dst=arp_info.dst_ip), parser.OFPActionOutput(out_port)]
-            self.add_flow(datapath, 1, match, actions, msg.buffer_id)
+                if arp_info.src_ip not in self.known_routes:
+                    self.known_routes[arp_info.src_ip] = {out_port, dst, mac_src, in_port}
 
 
+                #matching src(server) to dest(host)
+                print(">>>>>>>>>datapath.id:: ", datapath.id)
+                match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_IP, ipv4_dst=arp_info.src_ip, ipv4_src=arp_info.dst_ip)
+                actions = [parser.OFPActionOutput(in_port)]
+                self.add_flow(datapath, 1, match, actions, msg.buffer_id)
 
+                match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_IP, ipv4_dst=self.virtual_ip, ipv4_src=arp_info.src_ip)
+                actions = [parser.OFPActionSetField(ipv4_dst=arp_info.dst_ip), parser.OFPActionOutput(out_port)]
+                self.add_flow(datapath, 1, match, actions, msg.buffer_id)
 
 
 
 
-            # actions = [parser.OFPActionOutput(out_port)]  # parser.OFPActionSetField(ipv4_src="10.0.0.15"),
-            # new_match = parser.OFPMatch(in_port=in_port, eth_type=ether_types.ETH_TYPE_IP, ipv4_dst=arp_info.dst_ip)
-            # self.add_flow(datapath, 1, new_match, actions, msg.buffer_id)
 
-            # match = parser.OFPMatch(in_port=in_port, eth_type=ether_types.ETH_TYPE_IP, ipv4_dst=arp_info.dst_ip,
-            #                         ipv4_src=arp_info.src_ip)
-            # actions = [parser.OFPActionSetField(ipv4_dst=arp_info.dst_ip), parser.OFPActionOutput(out_port)]
-            # self.add_flow(datapath, 1, match, actions, buffer_id=ofproto_v1_3.OFP_NO_BUFFER)
 
-            # send arp request to host
-            arp_reply = packet.Packet()
-            arp_reply.add_protocol(
-                ethernet.ethernet(
-                    ethertype=ether_types.ETH_TYPE_ARP,
-                    src=dst
+
+                # actions = [parser.OFPActionOutput(out_port)]  # parser.OFPActionSetField(ipv4_src="10.0.0.15"),
+                # new_match = parser.OFPMatch(in_port=in_port, eth_type=ether_types.ETH_TYPE_IP, ipv4_dst=arp_info.dst_ip)
+                # self.add_flow(datapath, 1, new_match, actions, msg.buffer_id)
+
+                # match = parser.OFPMatch(in_port=in_port, eth_type=ether_types.ETH_TYPE_IP, ipv4_dst=arp_info.dst_ip,
+                #                         ipv4_src=arp_info.src_ip)
+                # actions = [parser.OFPActionSetField(ipv4_dst=arp_info.dst_ip), parser.OFPActionOutput(out_port)]
+                # self.add_flow(datapath, 1, match, actions, buffer_id=ofproto_v1_3.OFP_NO_BUFFER)
+
+                # send arp request to host
+                arp_reply = packet.Packet()
+                arp_reply.add_protocol(
+                    ethernet.ethernet(
+                        ethertype=ether_types.ETH_TYPE_ARP,
+                        src=dst
+                    )
                 )
-            )
-            arp_reply.add_protocol(
-                arp.arp(
-                    hwtype=1,
-                    proto=ether_types.ETH_TYPE_IP,
-                    hlen=6,
-                    plen=4,
-                    opcode=arp.ARP_REPLY,
-                    src_ip=arp_info.dst_ip,
-                    src_mac=dst,
-                    dst_ip=arp_info.src_ip,
-                    dst_mac=arp_info.src_mac
+                arp_reply.add_protocol(
+                    arp.arp(
+                        hwtype=1,
+                        proto=ether_types.ETH_TYPE_IP,
+                        hlen=6,
+                        plen=4,
+                        opcode=arp.ARP_REPLY,
+                        src_ip=arp_info.dst_ip,
+                        src_mac=dst,
+                        dst_ip=arp_info.src_ip,
+                        dst_mac=arp_info.src_mac
+                    )
                 )
-            )
-            arp_reply.serialize() # this is the serialization (payload length and checksum are automatically calculated)
+                arp_reply.serialize() # this is the serialization (payload length and checksum are automatically calculated)
 
-            actions = [parser.OFPActionOutput(in_port)] # this was just added
-            new_data = arp_reply.data
-            # out = parser.OFPPacketOut(
-            #     datapath=datapath,
-            #     buffer_id=ofproto.OFP_NO_BUFFER,
-            #     in_port=ofproto.OFPP_CONTROLLER,
-            #     actions=actions, data=arp_reply.data)
-            out = parser.OFPPacketOut(
-                datapath=datapath,
-                in_port=out_port,
-                actions=actions,
-                data=new_data,
-                buffer_id=ofproto.OFP_NO_BUFFER
-            )
+                actions = [parser.OFPActionOutput(in_port)] # this was just added
+                new_data = arp_reply.data
+                # out = parser.OFPPacketOut(
+                #     datapath=datapath,
+                #     buffer_id=ofproto.OFP_NO_BUFFER,
+                #     in_port=ofproto.OFPP_CONTROLLER,
+                #     actions=actions, data=arp_reply.data)
+                out = parser.OFPPacketOut(
+                    datapath=datapath,
+                    in_port=out_port,
+                    actions=actions,
+                    data=new_data,
+                    buffer_id=ofproto.OFP_NO_BUFFER
+                )
 
-            datapath.send_msg(out)
-            print("packet was sent out!")
+                datapath.send_msg(out)
+                print("packet was sent out!")
 
-        elif arp_info.dst_ip in self.known_routes:
-            print("where in loop back src:", arp_info.src_ip, " dest: ", arp_info.dst_ip)
-            known_route = self.known_routes[arp_info.dst_ip]
-            # port_filler, ip_filler, host_mac, host_port = self.known_routes[arp_info.dst_ip]
-            host_port, host_mac, port_filler, ip_filler = self.known_routes[arp_info.dst_ip]
+            elif arp_info.dst_ip in self.known_routes:
+                print("where in loop back src:", arp_info.src_ip, " dest: ", arp_info.dst_ip)
+                known_route = self.known_routes[arp_info.dst_ip]
+                # port_filler, ip_filler, host_mac, host_port = self.known_routes[arp_info.dst_ip]
+                host_port, host_mac, port_filler, ip_filler = self.known_routes[arp_info.dst_ip]
 
-            print(port_filler, ip_filler, host_mac, host_port)
-            print(self.known_routes[arp_info.dst_ip])
+                print(port_filler, ip_filler, host_mac, host_port)
+                print(self.known_routes[arp_info.dst_ip])
 
-            arp_pkt = packet.Packet()
-            arp_pkt.add_protocol(ethernet.ethernet(dst=mac_src, src=host_mac, ethertype=ether_types.ETH_TYPE_ARP))
-            arp_pkt.add_protocol(arp.arp(hwtype=1, proto=ether_types.ETH_TYPE_IP, hlen=6, plen=4, opcode=arp.ARP_REPLY,
-                                         src_mac=host_mac, src_ip=arp_info.dst_ip, dst_mac=mac_src, dst_ip=arp_info.src_ip))
+                arp_pkt = packet.Packet()
+                arp_pkt.add_protocol(ethernet.ethernet(dst=mac_src, src=host_mac, ethertype=ether_types.ETH_TYPE_ARP))
+                arp_pkt.add_protocol(arp.arp(hwtype=1, proto=ether_types.ETH_TYPE_IP, hlen=6, plen=4, opcode=arp.ARP_REPLY,
+                                             src_mac=host_mac, src_ip=arp_info.dst_ip, dst_mac=mac_src, dst_ip=arp_info.src_ip))
 
-            arp_pkt.serialize()
-            print("passed serialization")
-            data = arp_pkt.data
+                arp_pkt.serialize()
+                print("passed serialization")
+                data = arp_pkt.data
 
-            actions=[parser.OFPActionOutput(in_port)]
+                actions=[parser.OFPActionOutput(in_port)]
 
-            print("host_port:", host_port, " in_port: ", in_port)
-            print("host type: ", type(host_port), " in_port type: ", type(in_port))
-            print("host as int: ", int(host_port))
+                print("host_port:", host_port, " in_port: ", in_port)
+                print("host type: ", type(host_port), " in_port type: ", type(in_port))
+                print("host as int: ", int(host_port))
 
-            msg_to_send = parser.OFPPacketOut(datapath=datapath, in_port=int(host_port), actions=actions, data=data, buffer_id=ofproto.OFP_NO_BUFFER)
+                msg_to_send = parser.OFPPacketOut(datapath=datapath, in_port=int(host_port), actions=actions, data=data, buffer_id=ofproto.OFP_NO_BUFFER)
 
-            datapath.send_msg(msg_to_send)
-            print("sent message")
+                datapath.send_msg(msg_to_send)
+                print("sent message")
 
 
         else:
