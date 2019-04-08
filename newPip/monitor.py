@@ -310,6 +310,8 @@ class Monitor2(app_manager.RyuApp):
 
             elif arp_info.dst_ip in self.known_routes:
 
+                print("known routes:::::", self.known_routes)
+
 
                 print("where in loop back src:", arp_info.src_ip, " dest: ", arp_info.dst_ip)
                 known_route = self.known_routes[arp_info.dst_ip]
