@@ -21,6 +21,7 @@ class Monitor2(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_3.OFP_VERSION]
     package_count = 0
     backend_reached_count = 0
+    known_routes = {}
 
     def __init__(self, *args, **kwargs):
         super(Monitor2, self).__init__(*args, **kwargs)
@@ -39,6 +40,7 @@ class Monitor2(app_manager.RyuApp):
         self.back_end_servers = CONF.back_end_servers
         self.virtual_ip = CONF.virtual_ip
         self.next_out = self.front_end_testers
+        self.known_routes = {}
 
 
     def get_mac_from_num(self, optimal_number):
@@ -215,6 +217,10 @@ class Monitor2(app_manager.RyuApp):
             dst = self.get_mac_from_num(out_port)
             self.backend_reached_count += 1
 
+            if arp_info.src_ip not in self.known_routes:
+                self.known_routes[arp_info.src_ip] = {out_port, dst, mac_src, in_port}
+
+
             #matching src(server) to dest(host)
             print(">>>>>>>>>datapath.id:: ", datapath.id)
             match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_IP, ipv4_dst=arp_info.src_ip, ipv4_src=arp_info.dst_ip)
@@ -224,6 +230,10 @@ class Monitor2(app_manager.RyuApp):
             match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_IP, ipv4_dst=self.virtual_ip, ipv4_src=arp_info.src_ip)
             actions = [parser.OFPActionSetField(ipv4_dst=arp_info.dst_ip), parser.OFPActionOutput(out_port)]
             self.add_flow(datapath, 1, match, actions, msg.buffer_id)
+
+
+
+
 
 
 
@@ -276,6 +286,25 @@ class Monitor2(app_manager.RyuApp):
 
             datapath.send_msg(out)
             print("packet was sent out!")
+
+        elif arp_info.dst_ip in self.known_routes:
+            port_filler, ip_filler, host_mac, host_port = self.known_routes[arp_info.dst_ip]
+
+            arp_pkt = packet.Packet()
+            arp_pkt.add_protocol(ethernet.ethernet(dst=mac_src, src=host_mac, ethertype=ether_types.ETH_TYPE_ARP))
+            arp_pkt.add_protocol(arp.arp(hwtype=1, proto=ether_types.ETH_TYPE_IP, hlen=6, plen=4, opcode=arp.ARP_REPLY,
+                                         src_mac=host_mac, src_ip=arp_info.dst_ip, dst_mac=mac_src, dst_ip=arp_info.src_ip))
+
+            arp_pkt.serialize()
+            data = arp_pkt.data
+
+            actions=[parser.OFPActionOutput(in_port)]
+
+            msg_to_send = parser.OFPPacketOut(datapath=datapath, in_port=host_port, actions=actions, data=data, buffer_id=ofproto.OFP_NO_BUFFER)
+
+            datapath.send_msg(msg_to_send)
+
+
         else:
             actions = [parser.OFPActionOutput(out_port)]
 
