@@ -47,10 +47,12 @@ class Monitor2(app_manager.RyuApp):
 
         hex_num = hex(optimal_number)[2:len(optimal_number)]
 
-        if len(str(hex_num)) < 2:
-            mac_address = '00:00:00:00:00:0' + str(hex_num)
+        hex_str = str(hex_num)[2:len(str(hex_num))]
+
+        if len(hex_str) < 2:
+            mac_address = '00:00:00:00:00:0' + hex_str
         else:
-            mac_address = '00:00:00:00:00:' + str(hex_num)
+            mac_address = '00:00:00:00:00:' + hex_str
 
         return mac_address
 
