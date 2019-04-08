@@ -216,7 +216,7 @@ class Monitor2(app_manager.RyuApp):
             self.backend_reached_count += 1
 
             #matching src(server) to dest(host)
-            print(">>>>>>>>>srcip: ", arp_info.src_ip, " dst_ip: ", arp_info.dst_ip)
+            print(">>>>>>>>>datapath.id:: ", datapath.id)
             match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_IP, ipv4_dst=arp_info.src_ip, ipv4_src=arp_info.dst_ip)
             actions = [parser.OFPActionOutput(in_port)]
             self.add_flow(datapath, 1, match, actions, msg.buffer_id)
