@@ -220,7 +220,7 @@ class Monitor2(app_manager.RyuApp):
                 ver_replace_ip = '10.0.0.0' + str(out_port)
 
                 if arp_info.src_ip not in self.known_routes:
-                    self.known_routes[arp_info.src_ip] = {out_port, dst, mac_src, in_port, arp_info.src_ip}
+                    self.known_routes[arp_info.src_ip] = [out_port, dst, mac_src, in_port, arp_info.src_ip]
 
 
                 #matching src(server) to dest(host)
