@@ -217,21 +217,22 @@ class Monitor2(app_manager.RyuApp):
                 out_port = self.get_optimal_server_number()
                 dst = self.get_mac_from_num(out_port)
                 self.backend_reached_count += 1
+                ver_replace_ip = '10.0.0.0' + out_port
 
                 if arp_info.src_ip not in self.known_routes:
                     self.known_routes[arp_info.src_ip] = {out_port, dst, mac_src, in_port, arp_info.src_ip}
 
 
                 #matching src(server) to dest(host)
-                print("ipv4_dst=", arp_info.src_ip, "ipc4_src=", arp_info.dst_ip, "actionPort=", in_port)
+                print("ipv4_dst=", arp_info.src_ip, "ipc4_src=", ver_replace_ip, "actionPort=", in_port)
                 print(">>>>>>>>>datapath.id:: ", datapath.id)
-                match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_IP, ipv4_dst=arp_info.src_ip, ipv4_src=arp_info.dst_ip)
+                match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_IP, ipv4_dst=arp_info.src_ip, ipv4_src=ver_replace_ip)
                 actions = [parser.OFPActionOutput(in_port)]
                 self.add_flow(datapath, 1, match, actions, msg.buffer_id)
 
-                print("2ipv4_dst=", self.virtual_ip, "ipc4_src=", arp_info.src_ip, "actionPort=", out_port, "act_dst=", arp_info.dst_ip)
+                print("2ipv4_dst=", self.virtual_ip, "ipc4_src=", arp_info.src_ip, "actionPort=", out_port, "act_dst=", ver_replace_ip)
                 match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_IP, ipv4_dst=self.virtual_ip, ipv4_src=arp_info.src_ip)
-                actions = [parser.OFPActionSetField(ipv4_dst=arp_info.dst_ip), parser.OFPActionOutput(out_port)]
+                actions = [parser.OFPActionSetField(ipv4_dst=ver_replace_ip), parser.OFPActionOutput(out_port)]
                 self.add_flow(datapath, 1, match, actions, msg.buffer_id)
 
 
