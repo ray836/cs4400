@@ -241,12 +241,15 @@ class Monitor2(app_manager.RyuApp):
             arp_reply.add_protocol(
                 ethernet.ethernet(
                     ethertype=ether_types.ETH_TYPE_ARP,
-                    src=dst,
-                    dst=arp_info.src_mac
+                    src=dst
                 )
             )
             arp_reply.add_protocol(
                 arp.arp(
+                    hwtype=1,
+                    proto=ether_types.ETH_TYPE_IP,
+                    hlen=6,
+                    plen=4,
                     opcode=arp.ARP_REPLY,
                     src_ip=arp_info.dst_ip,
                     src_mac=dst,
@@ -256,13 +259,20 @@ class Monitor2(app_manager.RyuApp):
             )
             arp_reply.serialize() # this is the serialization (payload length and checksum are automatically calculated)
 
-            actions = [parser.OFPActionOutput(out_port)] # this was just added
-
+            actions = [parser.OFPActionOutput(in_port)] # this was just added
+            new_data = arp_reply.data
+            # out = parser.OFPPacketOut(
+            #     datapath=datapath,
+            #     buffer_id=ofproto.OFP_NO_BUFFER,
+            #     in_port=ofproto.OFPP_CONTROLLER,
+            #     actions=actions, data=arp_reply.data)
             out = parser.OFPPacketOut(
                 datapath=datapath,
-                buffer_id=ofproto.OFP_NO_BUFFER,
-                in_port=ofproto.OFPP_CONTROLLER,
-                actions=actions, data=arp_reply.data)
+                in_port=out_port,
+                actions=actions,
+                data=new_data,
+                buffer_id=ofproto.OFP_NO_BUFFER
+            )
 
             datapath.send_msg(out)
             print("packet was sent out!")
