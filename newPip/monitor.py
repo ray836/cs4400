@@ -294,9 +294,10 @@ class Monitor2(app_manager.RyuApp):
                 print("where in loop back src:", arp_info.src_ip, " dest: ", arp_info.dst_ip)
                 known_route = self.known_routes[arp_info.dst_ip]
                 # port_filler, ip_filler, host_mac, host_port = self.known_routes[arp_info.dst_ip]
-                host_ip, host_port, host_mac, port_filler, ip_filler = self.known_routes[arp_info.dst_ip]
+                # host_ip, host_port, host_mac, port_filler, ip_filler = self.known_routes[arp_info.dst_ip]
+                host_port, host_mac, host_ip, port_filler, ip_filler = self.known_routes[arp_info.dst_ip]
 
-                print(host_ip, port_filler, ip_filler, host_mac, host_port)
+                print(host_port, host_mac, host_ip, port_filler, ip_filler)
                 print(self.known_routes[arp_info.dst_ip])
 
                 server_mac = mac_src
