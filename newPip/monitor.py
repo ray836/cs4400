@@ -303,7 +303,7 @@ class Monitor2(app_manager.RyuApp):
                 server_ip = arp_info.src_ip
                 print("server_mac: ", server_mac, "server_ip: ", server_ip)
 
-            arp_pkt = packet.Packet()
+                arp_pkt = packet.Packet()
                 arp_pkt.add_protocol(ethernet.ethernet(dst=server_mac, src=host_mac, ethertype=ether_types.ETH_TYPE_ARP))
                 arp_pkt.add_protocol(arp.arp(hwtype=1, proto=ether_types.ETH_TYPE_IP, hlen=6, plen=4, opcode=arp.ARP_REPLY,
                                              src_mac=host_mac, src_ip=host_ip, dst_mac=server_mac, dst_ip=server_ip))
