@@ -293,7 +293,7 @@ class Monitor2(app_manager.RyuApp):
             port_filler, ip_filler, host_mac, host_port = self.known_routes[arp_info.dst_ip]
 
             print(port_filler, ip_filler, host_mac, host_port)
-            print(known_route[0], known_route[1], known_route[2], known_route[3])
+            print(self.known_routes[arp_info.dst_ip])
 
             arp_pkt = packet.Packet()
             arp_pkt.add_protocol(ethernet.ethernet(dst=mac_src, src=host_mac, ethertype=ether_types.ETH_TYPE_ARP))
