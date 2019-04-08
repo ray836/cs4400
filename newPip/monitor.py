@@ -291,6 +291,8 @@ class Monitor2(app_manager.RyuApp):
             print("where in loop back src:", arp_info.src_ip, " dest: ", arp_info.dst_ip)
             port_filler, ip_filler, host_mac, host_port = self.known_routes[arp_info.dst_ip]
 
+            print(port_filler, ip_filler, host_mac, host_port)
+
             arp_pkt = packet.Packet()
             arp_pkt.add_protocol(ethernet.ethernet(dst=mac_src, src=host_mac, ethertype=ether_types.ETH_TYPE_ARP))
             arp_pkt.add_protocol(arp.arp(hwtype=1, proto=ether_types.ETH_TYPE_IP, hlen=6, plen=4, opcode=arp.ARP_REPLY,
