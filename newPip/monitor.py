@@ -31,8 +31,8 @@ class Monitor2(app_manager.RyuApp):
 
         CONF = cfg.CONF
         CONF.register_opts([
-            cfg.IntOpt('front_end_testers', default=4, help=('Number of Front End Testers')),
-            cfg.IntOpt('back_end_servers', default=2, help=('Number of Back End Testers')),
+            cfg.IntOpt('hosts', default=4, help=('Number of Front End Testers')),
+            cfg.IntOpt('servers', default=2, help=('Number of Back End Testers')),
             cfg.StrOpt('virtual_ip', default='10.0.0.10', help=('Virtual IP address'))
         ])
 
