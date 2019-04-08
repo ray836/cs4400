@@ -307,6 +307,7 @@ class Monitor2(app_manager.RyuApp):
 
                 datapath.send_msg(out)
                 print("packet was sent out!")
+                print("known routes done: -->", self.known_routes)
 
             elif arp_info.dst_ip in self.known_routes:
 
