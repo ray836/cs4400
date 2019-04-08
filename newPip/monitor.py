@@ -45,7 +45,7 @@ class Monitor2(app_manager.RyuApp):
 
     def get_mac_from_num(self, optimal_number):
 
-        hex_num = hex(optimal_number)[2:len(optimal_number)]
+        hex_num = hex(optimal_number)
 
         hex_str = str(hex_num)[2:len(str(hex_num))]
 
