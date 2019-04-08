@@ -219,7 +219,7 @@ class Monitor2(app_manager.RyuApp):
                 self.backend_reached_count += 1
 
                 if arp_info.src_ip not in self.known_routes:
-                    self.known_routes[arp_info.src_ip] = {out_port, dst, mac_src, in_port}
+                    self.known_routes[arp_info.src_ip] = {out_port, dst, mac_src, in_port, arp_info.src_ip}
 
 
                 #matching src(server) to dest(host)
@@ -289,18 +289,24 @@ class Monitor2(app_manager.RyuApp):
                 print("packet was sent out!")
 
             elif arp_info.dst_ip in self.known_routes:
+
+
                 print("where in loop back src:", arp_info.src_ip, " dest: ", arp_info.dst_ip)
                 known_route = self.known_routes[arp_info.dst_ip]
                 # port_filler, ip_filler, host_mac, host_port = self.known_routes[arp_info.dst_ip]
-                host_port, host_mac, port_filler, ip_filler = self.known_routes[arp_info.dst_ip]
+                host_port, host_mac, port_filler, ip_filler, host_ip = self.known_routes[arp_info.dst_ip]
 
-                print(port_filler, ip_filler, host_mac, host_port)
+                print(port_filler, ip_filler, host_mac, host_port, host_ip)
                 print(self.known_routes[arp_info.dst_ip])
 
-                arp_pkt = packet.Packet()
-                arp_pkt.add_protocol(ethernet.ethernet(dst=mac_src, src=host_mac, ethertype=ether_types.ETH_TYPE_ARP))
+                server_mac = mac_src
+                server_ip = arp_info.src_ip
+                print("server_mac: ", server_mac, "server_ip: ", server_ip)
+
+            arp_pkt = packet.Packet()
+                arp_pkt.add_protocol(ethernet.ethernet(dst=server_mac, src=host_mac, ethertype=ether_types.ETH_TYPE_ARP))
                 arp_pkt.add_protocol(arp.arp(hwtype=1, proto=ether_types.ETH_TYPE_IP, hlen=6, plen=4, opcode=arp.ARP_REPLY,
-                                             src_mac=host_mac, src_ip=arp_info.dst_ip, dst_mac=mac_src, dst_ip=arp_info.src_ip))
+                                             src_mac=host_mac, src_ip=host_ip, dst_mac=server_mac, dst_ip=server_ip))
 
                 arp_pkt.serialize()
                 print("passed serialization")
