@@ -217,7 +217,7 @@ class Monitor2(app_manager.RyuApp):
                 out_port = self.get_optimal_server_number()
                 dst = self.get_mac_from_num(out_port)
                 self.backend_reached_count += 1
-                ver_replace_ip = '10.0.0.0' + out_port
+                ver_replace_ip = '10.0.0.0' + str(out_port)
 
                 if arp_info.src_ip not in self.known_routes:
                     self.known_routes[arp_info.src_ip] = {out_port, dst, mac_src, in_port, arp_info.src_ip}
