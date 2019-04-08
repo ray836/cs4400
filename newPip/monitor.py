@@ -248,6 +248,11 @@ class Monitor2(app_manager.RyuApp):
                 # self.add_flow(datapath, 1, match, actions, buffer_id=ofproto_v1_3.OFP_NO_BUFFER)
 
                 # send arp request to host
+
+                print("ether")
+                print("src=", dst)
+                print("dst=", mac_src)
+
                 arp_reply = packet.Packet()
                 arp_reply.add_protocol(
                     ethernet.ethernet(
@@ -256,6 +261,11 @@ class Monitor2(app_manager.RyuApp):
                         dst=mac_src
                     )
                 )
+
+                print("arp")
+                print("src_mac=", dst)
+                print("dst_ip=", arp_info.src_ip)
+                print("dst_mac=", arp_info.src_mac)
                 arp_reply.add_protocol(
                     arp.arp(
                         hwtype=1,
@@ -278,6 +288,10 @@ class Monitor2(app_manager.RyuApp):
                 #     buffer_id=ofproto.OFP_NO_BUFFER,
                 #     in_port=ofproto.OFPP_CONTROLLER,
                 #     actions=actions, data=arp_reply.data)
+
+                print("out")
+                print("in_port=", out_port)
+
                 out = parser.OFPPacketOut(
                     datapath=datapath,
                     in_port=out_port,
