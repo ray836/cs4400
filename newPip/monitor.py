@@ -223,7 +223,6 @@ class Monitor2(app_manager.RyuApp):
 
         if mac_dst in self.mac_to_port[dpid]:
             out_port = self.mac_to_port[dpid][mac_dst]
-            print("dst in mac to port")
         else:
             if arp_info and arp_info.dst_ip == self.virtual_ip:
                 # we know what to do in this case
@@ -232,7 +231,6 @@ class Monitor2(app_manager.RyuApp):
             else:
                 # flood the ports
                 out_port = ofproto.OFPP_FLOOD
-                dst = ""
 
         # if its an arp request
         if arp_info:
@@ -251,32 +249,15 @@ class Monitor2(app_manager.RyuApp):
 
 
                 #matching src(server) to dest(host)
-                print("ipv4_dst=", arp_info.src_ip, "ipc4_src=", ver_replace_ip, "actionPort=", in_port)
-                print(">>>>>>>>>datapath.id:: ", datapath.id)
                 match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_IP, ipv4_dst=arp_info.src_ip, ipv4_src=ver_replace_ip)
                 actions = [parser.OFPActionOutput(in_port)]
                 self.add_flow(datapath, 1, match, actions, msg.buffer_id)
 
 
-                print("2ipv4_dst=", self.virtual_ip, "ipc4_src=", arp_info.src_ip, "actionPort=", ver_replaced_port, "act_dst=", ver_replace_ip)
                 match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_IP, ipv4_dst=self.virtual_ip, ipv4_src=arp_info.src_ip)
                 actions = [parser.OFPActionSetField(ipv4_dst=ver_replace_ip), parser.OFPActionOutput(ver_replaced_port)]
                 self.add_flow(datapath, 1, match, actions, msg.buffer_id)
 
-
-                # actions = [parser.OFPActionOutput(out_port)]  # parser.OFPActionSetField(ipv4_src="10.0.0.15"),
-                # new_match = parser.OFPMatch(in_port=in_port, eth_type=ether_types.ETH_TYPE_IP, ipv4_dst=arp_info.dst_ip)
-                # self.add_flow(datapath, 1, new_match, actions, msg.buffer_id)
-
-                # match = parser.OFPMatch(in_port=in_port, eth_type=ether_types.ETH_TYPE_IP, ipv4_dst=arp_info.dst_ip,
-                #                         ipv4_src=arp_info.src_ip)
-                # actions = [parser.OFPActionSetField(ipv4_dst=arp_info.dst_ip), parser.OFPActionOutput(out_port)]
-                # self.add_flow(datapath, 1, match, actions, buffer_id=ofproto_v1_3.OFP_NO_BUFFER)
-
-                # send arp request to host
-                print("ether")
-                print("src=", ver_replaced_mac)
-                print("dst=", mac_src)
 
                 arp_reply = packet.Packet()
                 arp_reply.add_protocol(
@@ -287,11 +268,6 @@ class Monitor2(app_manager.RyuApp):
                     )
                 )
 
-                print("arp")
-                print("src_mac=", ver_replaced_mac)
-                print("dst_ip=", arp_info.src_ip)
-                print("dst_mac=", arp_info.src_mac)
-                print("src_ip=", self.virtual_ip)
                 arp_reply.add_protocol(
                     arp.arp(
                         hwtype=1,
@@ -307,17 +283,8 @@ class Monitor2(app_manager.RyuApp):
                 )
                 arp_reply.serialize() # this is the serialization (payload length and checksum are automatically calculated)
 
-                print("actionport=", in_port)
                 actions = [parser.OFPActionOutput(in_port)] # this was just added
                 new_data = arp_reply.data
-                # out = parser.OFPPacketOut(
-                #     datapath=datapath,
-                #     buffer_id=ofproto.OFP_NO_BUFFER,
-                #     in_port=ofproto.OFPP_CONTROLLER,
-                #     actions=actions, data=arp_reply.data)
-
-                print("out")
-                print("in_port=", ver_replaced_port)
 
                 out = parser.OFPPacketOut(
                     datapath=datapath,
@@ -328,27 +295,13 @@ class Monitor2(app_manager.RyuApp):
                 )
 
                 datapath.send_msg(out)
-                print("packet was sent out!")
-                print("known routes done: -->", self.known_routes)
 
             elif arp_info.dst_ip in self.known_routes:
 
-                print("known routes:::::", self.known_routes)
-
-
-                print("where in loop back src:", arp_info.src_ip, " dest: ", arp_info.dst_ip)
-                known_route = self.known_routes[arp_info.dst_ip]
-                # port_filler, ip_filler, host_mac, host_port = self.known_routes[arp_info.dst_ip]
-                # host_ip, host_port, host_mac, port_filler, ip_filler = self.known_routes[arp_info.dst_ip]
-                # host_port, host_mac, host_ip, port_filler, ip_filler = self.known_routes[arp_info.dst_ip]
                 port_filler, ip_filler, host_mac, host_port, host_ip = self.known_routes[arp_info.dst_ip]
-
-                print(host_port, host_mac, host_ip, port_filler, ip_filler)
-                print(self.known_routes[arp_info.dst_ip])
 
                 server_mac = mac_src
                 server_ip = arp_info.src_ip
-                print("server_mac: ", server_mac, "server_ip: ", server_ip)
 
                 arp_pkt = packet.Packet()
                 arp_pkt.add_protocol(ethernet.ethernet(dst=server_mac, src=host_mac, ethertype=ether_types.ETH_TYPE_ARP))
@@ -356,36 +309,21 @@ class Monitor2(app_manager.RyuApp):
                                              src_mac=host_mac, src_ip=host_ip, dst_mac=server_mac, dst_ip=server_ip))
 
                 arp_pkt.serialize()
-                print("passed serialization")
                 data = arp_pkt.data
 
                 actions=[parser.OFPActionOutput(in_port)]
-
-                print("host_port:", host_port, " in_port: ", in_port)
-                print("host type: ", type(host_port), " in_port type: ", type(in_port))
-                print("host as int: ", int(host_port))
-
                 msg_to_send = parser.OFPPacketOut(datapath=datapath, in_port=int(host_port), actions=actions, data=data, buffer_id=ofproto.OFP_NO_BUFFER)
 
                 datapath.send_msg(msg_to_send)
-                print("sent message")
 
 
         else:
             actions = [parser.OFPActionOutput(out_port)]
 
-            # install a flow to avoid packet_in next time
+            # insert a flow
             if out_port != ofproto.OFPP_FLOOD:
                 match = parser.OFPMatch(in_port=in_port, eth_dst=mac_dst, eth_src=mac_src)
-                # verify if we have a valid buffer_id, if yes avoid to send both
-                # flow_mod & packet_out
-                print("Push OF rules on s1:")
-                print("match:")
-                print("inport={}, dst-ip={}".format(in_port, mac_dst))
-                print("action:")
-                print("set: dst-ip={}".format(mac_dst))
-                print("set: outport={}".format(out_port))
-                print("")
+
                 if msg.buffer_id != ofproto.OFP_NO_BUFFER:
                     self.add_flow(datapath, 1, match, actions, msg.buffer_id)
                     return
@@ -403,8 +341,3 @@ class Monitor2(app_manager.RyuApp):
 
 
             datapath.send_msg(out)
-
-
-
-
-
