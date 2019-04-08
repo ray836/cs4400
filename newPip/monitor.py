@@ -266,6 +266,7 @@ class Monitor2(app_manager.RyuApp):
                 print("src_mac=", dst)
                 print("dst_ip=", arp_info.src_ip)
                 print("dst_mac=", arp_info.src_mac)
+                print("src_ip=", self.virtual_ip)
                 arp_reply.add_protocol(
                     arp.arp(
                         hwtype=1,
@@ -281,6 +282,7 @@ class Monitor2(app_manager.RyuApp):
                 )
                 arp_reply.serialize() # this is the serialization (payload length and checksum are automatically calculated)
 
+                print("actionport=", in_port)
                 actions = [parser.OFPActionOutput(in_port)] # this was just added
                 new_data = arp_reply.data
                 # out = parser.OFPPacketOut(
