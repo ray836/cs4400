@@ -45,11 +45,12 @@ class Monitor2(app_manager.RyuApp):
 
     def get_mac_from_num(self, optimal_number):
 
+        hex_num = hex(optimal_number)[2:len(optimal_number)]
 
-        if optimal_number < 10:
-            mac_address = '00:00:00:00:00:0' + str(optimal_number)
+        if len(hex_num) < 2:
+            mac_address = '00:00:00:00:00:0' + str(hex_num)
         else:
-            mac_address = '00:00:00:00:00:' + str(optimal_number)
+            mac_address = '00:00:00:00:00:' + str(hex_num)
 
         return mac_address
 
