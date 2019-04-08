@@ -64,31 +64,34 @@ class Monitor2(app_manager.RyuApp):
 
         return optimal_number
 
-
-
-
-
+    # For this I used info from switch13
     @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
     def switch_features_handler(self, ev):
-        print("switch features handlerr")
+
+        # set up info
         datapath = ev.msg.datapath
         ofproto = datapath.ofproto
         parser = datapath.ofproto_parser
 
-        # install table-miss flow entry
-        #
-        # We specify NO BUFFER to max_len of the output action due to
-        # OVS bug. At this moment, if we specify a lesser number, e.g.,
-        # 128, OVS will send Packet-In with invalid buffer_id and
-        # truncated packet data. In that case, we cannot output packets
-        # correctly.  The bug has been fixed in OVS v2.1.0.
+        # match andything you don't know
         match = parser.OFPMatch()
         actions = [parser.OFPActionOutput(ofproto.OFPP_CONTROLLER,
                                           ofproto.OFPCML_NO_BUFFER)]
         self.add_flow(datapath, 0, match, actions)
 
+
     def add_flow(self, datapath, priority, match, actions, buffer_id=None):
-        print("in add flow +++")
+        '''
+
+        Add a Flow entry to switch
+
+        :param datapath: datapath
+        :param priority:  entry priority level
+        :param match:  match for entry
+        :param actions: action for entry
+        :param buffer_id: buffer_id
+        :return: void
+        '''
         ofproto = datapath.ofproto
         parser = datapath.ofproto_parser
 
@@ -104,6 +107,18 @@ class Monitor2(app_manager.RyuApp):
         datapath.send_msg(mod)
 
     def print_packet_info(self, eth, arp_info, ipv4_info, ipv6_info, icmp_info, in_port, protocol_list, datapath):
+        '''
+        Print the info of a Packet. Note some parameters will be null
+        :param eth: ethernet info
+        :param arp_info: arp info
+        :param ipv4_info: ipv4 info
+        :param ipv6_info: ipv6 info
+        :param icmp_info: icmp info (for pings)
+        :param in_port: port the switch received the packet on
+        :param protocol_list: list of all protocols with the packet
+        :param datapath: switch info or data path
+        :return: void
+        '''
         print("---------------------------------------------------")
         print("Packet ({}) Received on Port({}): {}".format(self.package_count, in_port, protocol_list))
 
@@ -152,13 +167,19 @@ class Monitor2(app_manager.RyuApp):
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def _packet_in_handler(self, ev):
+        '''
+        Handle the packets coming in to the switch.
+        :param ev: packet info
+        :return: void
+        '''
 
         msg = ev.msg  # Object representing a packet_in data structure.
-        datapath = msg.datapath  # Switch Datapath ID
-        ofproto = datapath.ofproto  # OpenFlow Protocol version the entities negotiated. In our case OF1.3
+        datapath = msg.datapath  # Switch Datapath  or ID
+        ofproto = datapath.ofproto  # OpenFlow Protocol version the entities negotiated. We use OF1.3
         parser = datapath.ofproto_parser
-        in_port = msg.match['in_port']
+        in_port = msg.match['in_port'] # port the msg came in on
 
+        # set information
         pkt = packet.Packet(msg.data)
         eth = pkt.get_protocol(ethernet.ethernet)
         arp_info = pkt.get_protocol(arp.arp)
@@ -168,7 +189,7 @@ class Monitor2(app_manager.RyuApp):
         self.package_count += 1
 
         if eth.ethertype == ether_types.ETH_TYPE_LLDP:
-            self.logger.debug("Advertising...")
+            # this happens from advertising
             return
 
         #getting packet protocols
@@ -205,25 +226,28 @@ class Monitor2(app_manager.RyuApp):
             print("dst in mac to port")
         else:
             if arp_info and arp_info.dst_ip == self.virtual_ip:
-                print("Not FLOODING THE PORTS")
+                # we know what to do in this case
+                print()
+
             else:
+                # flood the ports
                 out_port = ofproto.OFPP_FLOOD
-                print("FLOODING THE PORTS")
+                dst = ""
 
-
-
+        # if its an arp request
         if arp_info:
+            # if its destined to the virtual ip
             if arp_info.dst_ip == self.virtual_ip:
 
-                #
-                print("we got a virtual address request")
-                out_port = self.get_optimal_server_number()
-                dst = self.get_mac_from_num(out_port)
+                # initialize virtual replacements
+                ver_replaced_port = self.get_optimal_server_number()
+                ver_replaced_mac = self.get_mac_from_num(ver_replaced_port)
                 self.backend_reached_count += 1
-                ver_replace_ip = '10.0.0.' + str(out_port)
+                ver_replace_ip = '10.0.0.' + str(ver_replaced_port)
 
+                # if we don't know about it add it to known routes
                 if arp_info.src_ip not in self.known_routes:
-                    self.known_routes[arp_info.src_ip] = [out_port, dst, mac_src, in_port, arp_info.src_ip]
+                    self.known_routes[arp_info.src_ip] = [ver_replaced_port, ver_replaced_mac, mac_src, in_port, arp_info.src_ip]
 
 
                 #matching src(server) to dest(host)
@@ -233,15 +257,11 @@ class Monitor2(app_manager.RyuApp):
                 actions = [parser.OFPActionOutput(in_port)]
                 self.add_flow(datapath, 1, match, actions, msg.buffer_id)
 
-                print("2ipv4_dst=", self.virtual_ip, "ipc4_src=", arp_info.src_ip, "actionPort=", out_port, "act_dst=", ver_replace_ip)
+
+                print("2ipv4_dst=", self.virtual_ip, "ipc4_src=", arp_info.src_ip, "actionPort=", ver_replaced_port, "act_dst=", ver_replace_ip)
                 match = parser.OFPMatch(eth_type=ether_types.ETH_TYPE_IP, ipv4_dst=self.virtual_ip, ipv4_src=arp_info.src_ip)
-                actions = [parser.OFPActionSetField(ipv4_dst=ver_replace_ip), parser.OFPActionOutput(out_port)]
+                actions = [parser.OFPActionSetField(ipv4_dst=ver_replace_ip), parser.OFPActionOutput(ver_replaced_port)]
                 self.add_flow(datapath, 1, match, actions, msg.buffer_id)
-
-
-
-
-
 
 
                 # actions = [parser.OFPActionOutput(out_port)]  # parser.OFPActionSetField(ipv4_src="10.0.0.15"),
@@ -254,22 +274,21 @@ class Monitor2(app_manager.RyuApp):
                 # self.add_flow(datapath, 1, match, actions, buffer_id=ofproto_v1_3.OFP_NO_BUFFER)
 
                 # send arp request to host
-
                 print("ether")
-                print("src=", dst)
+                print("src=", ver_replaced_mac)
                 print("dst=", mac_src)
 
                 arp_reply = packet.Packet()
                 arp_reply.add_protocol(
                     ethernet.ethernet(
                         ethertype=ether_types.ETH_TYPE_ARP,
-                        src=dst,
+                        src=ver_replaced_mac,
                         dst=mac_src
                     )
                 )
 
                 print("arp")
-                print("src_mac=", dst)
+                print("src_mac=", ver_replaced_mac)
                 print("dst_ip=", arp_info.src_ip)
                 print("dst_mac=", arp_info.src_mac)
                 print("src_ip=", self.virtual_ip)
@@ -281,7 +300,7 @@ class Monitor2(app_manager.RyuApp):
                         plen=4,
                         opcode=arp.ARP_REPLY,
                         src_ip=self.virtual_ip,
-                        src_mac=dst,
+                        src_mac=ver_replaced_mac,
                         dst_ip=arp_info.src_ip,
                         dst_mac=arp_info.src_mac
                     )
@@ -298,11 +317,11 @@ class Monitor2(app_manager.RyuApp):
                 #     actions=actions, data=arp_reply.data)
 
                 print("out")
-                print("in_port=", out_port)
+                print("in_port=", ver_replaced_port)
 
                 out = parser.OFPPacketOut(
                     datapath=datapath,
-                    in_port=out_port,
+                    in_port=ver_replaced_port,
                     actions=actions,
                     data=new_data,
                     buffer_id=ofproto.OFP_NO_BUFFER
