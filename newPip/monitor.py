@@ -297,6 +297,7 @@ class Monitor2(app_manager.RyuApp):
                                          src_mac=host_mac, src_ip=arp_info.dst_ip, dst_mac=mac_src, dst_ip=arp_info.src_ip))
 
             arp_pkt.serialize()
+            print("passed serialization")
             data = arp_pkt.data
 
             actions=[parser.OFPActionOutput(in_port)]
@@ -304,6 +305,7 @@ class Monitor2(app_manager.RyuApp):
             msg_to_send = parser.OFPPacketOut(datapath=datapath, in_port=host_port, actions=actions, data=data, buffer_id=ofproto.OFP_NO_BUFFER)
 
             datapath.send_msg(msg_to_send)
+            print("sent message")
 
 
         else:
