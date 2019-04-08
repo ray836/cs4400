@@ -225,6 +225,9 @@ class Monitor2(app_manager.RyuApp):
             actions = [parser.OFPActionSetField(ipv4_dst=arp_info.dst_ip), parser.OFPActionOutput(out_port)]
             self.add_flow(datapath, 1, match, actions, msg.buffer_id)
 
+            actions = [parser.OFPActionSetField(ipv4_dst=arp_info.dst_ip), parser.OFPActionOutput(out_port)]
+            self.add_flow(datapath, 1, match, actions, buffer_id=ofproto_v1_3.OFP_NO_BUFFER)
+
             # actions = [parser.OFPActionOutput(out_port)]  # parser.OFPActionSetField(ipv4_src="10.0.0.15"),
             # new_match = parser.OFPMatch(in_port=in_port, eth_type=ether_types.ETH_TYPE_IP, ipv4_dst=arp_info.dst_ip)
             # self.add_flow(datapath, 1, new_match, actions, msg.buffer_id)
