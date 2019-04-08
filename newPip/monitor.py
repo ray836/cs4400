@@ -244,6 +244,8 @@ class Monitor2(app_manager.RyuApp):
             )
             arp_reply.serialize() # this is the serialization (payload length and checksum are automatically calculated)
 
+            actions = [parser.OFPActionOutput(out_port)] # this was just added
+
             out = parser.OFPPacketOut(
                 datapath=datapath,
                 buffer_id=ofproto.OFP_NO_BUFFER,
